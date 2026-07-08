@@ -6,4 +6,5 @@ export * from './recurring-rule';
 export * from './draft-transaction';
 export * from './settings';
 export * from './user';
+export * from './auth';
 export * from './backup';

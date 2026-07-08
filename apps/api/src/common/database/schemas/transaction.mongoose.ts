@@ -54,6 +54,9 @@ transactionMongooseSchema.pre('validate', function () {
   }
 });
 
+// Nota: insertMany (parcelas em lote, Fase 12) valida cada documento e, portanto,
+// também passa pelo pre('validate') acima — coberto por teste de integração.
+
 // Mantém a coerência quando `date` muda via findOneAndUpdate (DATABASE §5)
 transactionMongooseSchema.pre('findOneAndUpdate', function () {
   const update = this.getUpdate();

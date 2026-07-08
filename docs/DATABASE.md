@@ -42,8 +42,12 @@ Banco: MongoDB (Mongoose)
 | `color` | String | token de cor, nunca hardcoded |
 | `active` | Boolean | |
 | `archived` | Boolean | arquivamento lógico; nunca removida fisicamente |
+| `sortOrder` | Int | ordem manual de exibição, >= 0 (ADR-016) |
+| `expiresAt` | Date \| null | categoria temporária; `null` = permanente (ADR-016) |
 | `deletedAt` / `deletedBy` | Date / ObjectId | |
 | `createdAt` / `updatedAt` | Date | |
+
+> ADR-016: exclusão (soft delete) de categoria **em uso** por transações não-deletadas é bloqueada (409); o caminho é o arquivamento. Sem índices novos para `sortOrder`/`expiresAt`.
 
 ### 2.3 `transactions` (agregado central)
 
@@ -107,6 +111,7 @@ Snapshot de intenção. `monthlyPlanItems` é um **array embutido**.
 | `description` | String | |
 | `categoryId` | ObjectId | |
 | `amountCents` | Int | |
+| `investment` | Boolean | regra de investimento; exige `type=EXPENSE` (ADR-017) |
 | `recurrenceType` | String enum | **`MONTHLY` apenas na V1** |
 | `dayOfMonth` | Int | 1–31 (ajusta ao último dia se o mês for mais curto) |
 | `startDate` / `endDate` | Date \| null | janela de validade |

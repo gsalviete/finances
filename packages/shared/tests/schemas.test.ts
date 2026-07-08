@@ -51,6 +51,8 @@ const validCategory = () => ({
   color: 'category.green',
   active: true,
   archived: false,
+  sortOrder: 0,
+  expiresAt: null,
   deletedAt: null,
   deletedBy: null,
   createdAt: '2026-07-01T12:00:00.000Z',

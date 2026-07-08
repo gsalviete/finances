@@ -59,4 +59,4 @@ GitHub Actions (`.github/workflows/ci.yml`), em push na `main` e em PRs: `instal
 
 ## Estado atual
 
-**Fase 8 — Camada de persistência concluída** (ver `docs/IMPLEMENTATION_ROADMAP.md`). MongoDB via Mongoose: 8 coleções com índices exatos do `DATABASE.md §3`, soft delete filtrado por padrão (plugin), `month`/`year` denormalizados na escrita (hook, fuso do domínio), `BaseRepository` com fronteira ObjectId⇄string validada pelos schemas Zod (ADR-014) e readiness com ping real no Mongo. Módulos de domínio começam na Fase 9 (Auth).
+**Fases 11–13 concluídas** (ver `docs/IMPLEMENTATION_ROADMAP.md`): Transações (`/api/v1/transactions` — CRUD, ciclo FORECAST/CONFIRMED/CANCELLED via PATCH, paginação por cursor, filtros), Parcelamento (`POST /transactions/installments` — divisão exata de centavos, 1ª parcela CONFIRMED, datas com clamp) e Recorrências (`/api/v1/recurring-rules` — templates MONTHLY com janela de validade). Fase 14 (plano mensal + virada de mês) aguardando decisão de contrato (mapeamento INVESTMENT).

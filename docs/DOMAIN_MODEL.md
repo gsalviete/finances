@@ -89,7 +89,7 @@ FORECAST      CONFIRMED
 
 ### 3.3 Category
 
-Totalmente customizável, nunca fixa (FR-021). Campos: `name`, `icon`, `color`, `active`, `archived`. Nunca é removida fisicamente — apenas arquivada (FR-023), com restauração possível (FR-024).
+Totalmente customizável, nunca fixa (FR-021). Campos: `name`, `icon`, `color`, `active`, `archived`, `sortOrder` (ordem manual de exibição) e `expiresAt` (categoria temporária; `null` = permanente) — os dois últimos por ADR-016. Nunca é removida fisicamente — apenas arquivada (FR-023), com restauração possível (FR-024). Exclusão (soft delete) de categoria em uso por transações não-deletadas é bloqueada; arquivar é o mecanismo correto (ADR-016). Categoria expirada some das listagens padrão sem afetar o histórico.
 
 ### 3.4 MonthlyPlan (snapshot de intenção)
 
@@ -117,6 +117,7 @@ Fonte das recorrências (ADR-003). Um template, não uma movimentação.
 | Campo | Descrição |
 |---|---|
 | `type` | `INCOME` \| `EXPENSE` |
+| `investment` | booleano; `true` exige `type=EXPENSE` e gera plan item `INVESTMENT` na virada (ADR-017) |
 | `description`, `categoryId`, `amountCents` | conteúdo da recorrência |
 | `recurrenceType` | **apenas `MONTHLY` na V1** |
 | `dayOfMonth` | dia previsto (1–31, ajustado ao último dia se necessário) |

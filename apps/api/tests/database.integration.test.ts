@@ -163,6 +163,7 @@ describe('soft delete por padrão (ADR-010)', () => {
       color: 'category.blue',
       active: true,
       archived: false,
+      sortOrder: 0,
     };
   }
 });
@@ -270,6 +271,7 @@ describe('BaseRepository — fronteira do contrato (ADR-014)', () => {
       color: 'category.purple',
       active: true,
       archived: false,
+      sortOrder: 0,
     });
     expect(created.name).toBe('Lazer');
     expect(typeof created.userId).toBe('string');

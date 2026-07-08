@@ -58,3 +58,76 @@ export const transactionSchema = z
   });
 
 export type Transaction = z.infer<typeof transactionSchema>;
+
+/**
+ * Criação manual (FR-014): tipo, categoria, valor, data, descrição.
+ * `origin`, `month`/`year` e defaults são responsabilidade do servidor.
+ * Nasce FORECAST ou CONFIRMED (DOMAIN §3.2) — nunca CANCELLED.
+ */
+export const createTransactionInputSchema = z.object({
+  type: transactionTypeSchema,
+  status: transactionStatusSchema.exclude(['CANCELLED']).default('CONFIRMED'),
+  amountCents: positiveCentsSchema,
+  description: z.string('descrição deve ser um texto').trim().max(500),
+  date: dateSchema,
+  categoryId: objectIdSchema,
+});
+
+export type CreateTransactionInput = z.infer<typeof createTransactionInputSchema>;
+
+/**
+ * Atualização parcial; confirmação (FORECAST→CONFIRMED) e cancelamento
+ * (→CANCELLED) via PATCH (ARCHITECTURE §3). Transições validadas no serviço.
+ */
+export const updateTransactionInputSchema = z
+  .object({
+    type: transactionTypeSchema.optional(),
+    status: transactionStatusSchema.optional(),
+    amountCents: positiveCentsSchema.optional(),
+    description: z.string('descrição deve ser um texto').trim().max(500).optional(),
+    date: dateSchema.optional(),
+    categoryId: objectIdSchema.optional(),
+  })
+  .refine((value) => Object.keys(value).length > 0, 'ao menos um campo deve ser informado');
+
+export type UpdateTransactionInput = z.infer<typeof updateTransactionInputSchema>;
+
+/** Compra parcelada (DOMAIN §6.1): materializa N transações EXPENSE na criação. */
+export const createInstallmentPurchaseInputSchema = z
+  .object({
+    totalAmountCents: positiveCentsSchema,
+    installmentTotal: z
+      .number('installmentTotal deve ser um número')
+      .int('installmentTotal deve ser um inteiro')
+      .min(2, 'parcelamento exige ao menos 2 parcelas')
+      .max(120, 'parcelamento suporta no máximo 120 parcelas'),
+    description: z.string('descrição deve ser um texto').trim().max(500),
+    date: dateSchema, // data da compra = data da 1ª parcela
+    categoryId: objectIdSchema,
+  })
+  .refine((input) => input.totalAmountCents >= input.installmentTotal, {
+    message: 'cada parcela deve valer ao menos 1 centavo (amountCents > 0 — DOMAIN §3.1)',
+    path: ['installmentTotal'],
+  });
+
+export type CreateInstallmentPurchaseInput = z.infer<typeof createInstallmentPurchaseInputSchema>;
+
+/** Listagem com paginação por cursor (Fase 11); ordenação estável date desc, id desc. */
+export const listTransactionsQuerySchema = z.object({
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+  cursor: z.string().min(1).optional(),
+  year: z.coerce.number().int().min(1970).max(9999).optional(),
+  month: z.coerce.number().int().min(1).max(12).optional(),
+  type: transactionTypeSchema.optional(),
+  status: transactionStatusSchema.optional(),
+  categoryId: objectIdSchema.optional(),
+});
+
+export type ListTransactionsQuery = z.infer<typeof listTransactionsQuerySchema>;
+
+export const transactionListPageSchema = z.object({
+  items: z.array(transactionSchema),
+  nextCursor: z.string().nullable(),
+});
+
+export type TransactionListPage = z.infer<typeof transactionListPageSchema>;

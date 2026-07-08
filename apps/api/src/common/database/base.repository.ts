@@ -26,6 +26,11 @@ export class BaseRepository<TDomain extends { id: string }> {
     protected readonly contractSchema: ZodType<TDomain>,
   ) {}
 
+  /** Ids malformados nunca chegam ao driver: viram "não encontrado" (sem CastError). */
+  protected isValidObjectId(id: string): boolean {
+    return OBJECT_ID_PATTERN.test(id);
+  }
+
   protected toDomain(doc: unknown): TDomain {
     const plain =
       typeof (doc as { toObject?: unknown }).toObject === 'function'

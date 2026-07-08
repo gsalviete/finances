@@ -11,6 +11,8 @@ export const categoryMongooseSchema = new Schema(
     color: { type: String, required: true }, // token de cor, nunca hardcoded
     active: { type: Boolean, required: true },
     archived: { type: Boolean, required: true },
+    sortOrder: { type: Number, required: true }, // ADR-016
+    expiresAt: { type: Date, default: null }, // ADR-016: null = permanente
     deletedAt: { type: Date, default: null },
     deletedBy: { type: Schema.Types.ObjectId, ref: MODELS.User, default: null },
   },
