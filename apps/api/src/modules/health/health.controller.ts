@@ -1,14 +1,15 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, ServiceUnavailableException } from '@nestjs/common';
+import { InjectConnection } from '@nestjs/mongoose';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { systemClock } from '@finances/shared';
+import { Connection } from 'mongoose';
 
-/**
- * Health mínimo da Fase 7 (health/readiness/liveness — ARCHITECTURE §3).
- * O readiness passa a verificar o MongoDB na Fase 8 (camada de persistência).
- */
+/** Health/liveness/readiness (ARCHITECTURE §3). Readiness verifica o MongoDB de fato. */
 @ApiTags('health')
 @Controller('health')
 export class HealthController {
+  constructor(@InjectConnection() private readonly connection: Connection) {}
+
   @Get()
   @ApiOperation({ summary: 'Estado geral da API' })
   @ApiOkResponse({ description: 'API operacional' })
@@ -27,8 +28,17 @@ export class HealthController {
   }
 
   @Get('readiness')
-  @ApiOperation({ summary: 'Pronto para receber tráfego (Mongo entra na Fase 8)' })
-  readiness(): { status: 'ok' } {
-    return { status: 'ok' };
+  @ApiOperation({ summary: 'Pronto para receber tráfego (inclui ping real no MongoDB)' })
+  async readiness(): Promise<{ status: 'ok'; mongo: 'up' }> {
+    const ready = this.connection.readyState === 1;
+    if (!ready || this.connection.db === undefined) {
+      throw new ServiceUnavailableException('MongoDB indisponível');
+    }
+    try {
+      await this.connection.db.admin().ping();
+    } catch {
+      throw new ServiceUnavailableException('MongoDB não respondeu ao ping');
+    }
+    return { status: 'ok', mongo: 'up' };
   }
 }

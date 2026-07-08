@@ -59,4 +59,4 @@ GitHub Actions (`.github/workflows/ci.yml`), em push na `main` e em PRs: `instal
 
 ## Estado atual
 
-**Fase 7 — Bootstrap da API (NestJS) concluída** (ver `docs/IMPLEMENTATION_ROADMAP.md`). API NestJS com env validado por Zod, logs Pino estruturados (`requestId`), filtro global de erros padronizados, Swagger em `/api/docs` e `/api/v1/health` (health/liveness/readiness). O frontend continua stub até a Fase 19; persistência Mongo entra na Fase 8.
+**Fase 8 — Camada de persistência concluída** (ver `docs/IMPLEMENTATION_ROADMAP.md`). MongoDB via Mongoose: 8 coleções com índices exatos do `DATABASE.md §3`, soft delete filtrado por padrão (plugin), `month`/`year` denormalizados na escrita (hook, fuso do domínio), `BaseRepository` com fronteira ObjectId⇄string validada pelos schemas Zod (ADR-014) e readiness com ping real no Mongo. Módulos de domínio começam na Fase 9 (Auth).
