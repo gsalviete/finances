@@ -59,4 +59,4 @@ GitHub Actions (`.github/workflows/ci.yml`), em push na `main` e em PRs: `instal
 
 ## Estado atual
 
-**Fase 5 — Utils de domínio (Money + Time) concluída** (ver `docs/IMPLEMENTATION_ROADMAP.md`). `@finances/shared` expõe `Money` (centavos inteiros, sem float) e `Time` (fronteiras de dia/mês em `America/Sao_Paulo`, acesso a "agora" só via `Clock`). Apps ainda são stubs; schemas Zod chegam na Fase 6.
+**Fase 6 — Schemas Zod (fonte única) concluída** (ver `docs/IMPLEMENTATION_ROADMAP.md` e `docs/ADR-014-SCHEMA-FIRST.md`). `@finances/shared` é a fonte única de contratos: `Money`, `Time`/`Clock`, enums, schemas Zod de todas as entidades e tipos inferidos (`z.infer`). Apps ainda são stubs; o backend NestJS começa na Fase 7.
