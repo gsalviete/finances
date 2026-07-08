@@ -1,0 +1,23 @@
+# dependencies
+node_modules/
+
+# build outputs
+dist/
+.next/
+
+# turborepo
+.turbo/
+
+# tests
+coverage/
+
+# environment (nunca commitar segredos — ver .env.example)
+.env
+.env.*
+!.env.example
+
+# logs
+*.log
+
+# OS
+.DS_Store

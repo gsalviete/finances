@@ -1,0 +1,6 @@
+{
+  "name": "@finances/config",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Configurações compartilhadas do monorepo (tsconfig; ESLint/Prettier na Fase 2)"
+}

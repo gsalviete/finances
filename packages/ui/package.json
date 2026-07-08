@@ -1,0 +1,22 @@
+{
+  "name": "@finances/ui",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Componentes React reutilizáveis (ADR-013). Stub na Fase 1; componentes a partir do Bloco F.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@finances/config": "workspace:*",
+    "@types/jest": "^29.0.0",
+    "@types/node": "^24.0.0",
+    "jest": "^29.0.0",
+    "ts-jest": "^29.0.0",
+    "typescript": "^5.0.0"
+  }
+}
