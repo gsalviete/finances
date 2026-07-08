@@ -1,0 +1,10 @@
+# artefatos
+node_modules/
+dist/
+.next/
+.turbo/
+coverage/
+pnpm-lock.yaml
+
+# contrato do projeto — arquitetura congelada, nunca reformatar automaticamente
+docs/
