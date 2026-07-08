@@ -1,0 +1,22 @@
+# dependências e artefatos — sempre reconstruídos dentro da imagem
+node_modules
+**/node_modules
+**/dist
+**/.next
+**/.turbo
+coverage
+
+# fora do runtime
+.git
+.github
+.husky
+docs
+docker
+
+# ambiente
+.env
+.env.*
+!.env.example
+
+# SO
+.DS_Store
