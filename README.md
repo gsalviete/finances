@@ -59,4 +59,4 @@ GitHub Actions (`.github/workflows/ci.yml`), em push na `main` e em PRs: `instal
 
 ## Estado atual
 
-**Fase 4 — Ambiente Docker de desenvolvimento concluída** (ver `docs/IMPLEMENTATION_ROADMAP.md`). Apps ainda são stubs (HTTP mínimo com `/health`); nenhuma regra de negócio implementada.
+**Fases 11–13 concluídas** (ver `docs/IMPLEMENTATION_ROADMAP.md`): Transações (`/api/v1/transactions` — CRUD, ciclo FORECAST/CONFIRMED/CANCELLED via PATCH, paginação por cursor, filtros), Parcelamento (`POST /transactions/installments` — divisão exata de centavos, 1ª parcela CONFIRMED, datas com clamp) e Recorrências (`/api/v1/recurring-rules` — templates MONTHLY com janela de validade). Fase 14 (plano mensal + virada de mês) aguardando decisão de contrato (mapeamento INVESTMENT).
