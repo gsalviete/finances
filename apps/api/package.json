@@ -23,6 +23,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@finances/shared": "workspace:*",
     "@nestjs/common": "^11.1.28",
     "@nestjs/config": "^4.0.4",
     "@nestjs/core": "^11.1.28",

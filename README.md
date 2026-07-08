@@ -59,4 +59,4 @@ GitHub Actions (`.github/workflows/ci.yml`), em push na `main` e em PRs: `instal
 
 ## Estado atual
 
-**Fase 6 — Schemas Zod (fonte única) concluída** (ver `docs/IMPLEMENTATION_ROADMAP.md` e `docs/ADR-014-SCHEMA-FIRST.md`). `@finances/shared` é a fonte única de contratos: `Money`, `Time`/`Clock`, enums, schemas Zod de todas as entidades e tipos inferidos (`z.infer`). Apps ainda são stubs; o backend NestJS começa na Fase 7.
+**Fase 7 — Bootstrap da API (NestJS) concluída** (ver `docs/IMPLEMENTATION_ROADMAP.md`). API NestJS com env validado por Zod, logs Pino estruturados (`requestId`), filtro global de erros padronizados, Swagger em `/api/docs` e `/api/v1/health` (health/liveness/readiness). O frontend continua stub até a Fase 19; persistência Mongo entra na Fase 8.
