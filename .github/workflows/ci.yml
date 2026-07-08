@@ -1,0 +1,45 @@
+# CI da V1 (Fase 3): install → lint → typecheck → test → build → docker build.
+# Qualquer etapa que falhe reprova o pipeline (steps sequenciais no mesmo job).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4 # versão lida do campo packageManager
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+      - name: Docker build (api)
+        run: docker build -f apps/api/Dockerfile -t finances-api:ci .
+
+      - name: Docker build (web)
+        run: docker build -f apps/web/Dockerfile -t finances-web:ci .

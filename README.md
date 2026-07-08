@@ -43,6 +43,20 @@ pnpm format:check   # prettier --check .
 - **Conventional Commits** obrigatórios — `commitlint` valida no hook `commit-msg`; `lint-staged` roda `eslint --fix` + `prettier --write` no `pre-commit` (Husky).
 - `docs/` está no `.prettierignore`: é o contrato do projeto e nunca é reformatado automaticamente.
 
+## Ambiente de desenvolvimento
+
+```sh
+cp .env.example .env   # uma única vez
+docker compose up -d   # Mongo, Mongo Express, API (stub), WEB (stub)
+docker compose down    # para tudo SEM apagar dados (volume nomeado persiste)
+```
+
+Serviços: MongoDB (`:27017`), Mongo Express (`:8081`, credenciais no `.env`), API (`:3001`, `GET /health`), WEB (`:3000`, `GET /health`). Todos com healthcheck, restart `unless-stopped` e uma única network dedicada. A definição vive em `docker/docker-compose.yml`; o `compose.yaml` da raiz apenas a inclui para que `docker compose up` funcione da raiz com o `.env` local.
+
+## CI
+
+GitHub Actions (`.github/workflows/ci.yml`), em push na `main` e em PRs: `install → lint → typecheck → test → build → docker build`. Qualquer etapa que falhe reprova o pipeline. As imagens Docker dos apps são construídas a partir dos `Dockerfile` em `apps/api` e `apps/web` (contexto = raiz do monorepo).
+
 ## Estado atual
 
-**Fase 2 — Toolchain de qualidade concluída** (ver `docs/IMPLEMENTATION_ROADMAP.md`). Apps e packages ainda são stubs; nenhuma regra de negócio implementada.
+**Fase 4 — Ambiente Docker de desenvolvimento concluída** (ver `docs/IMPLEMENTATION_ROADMAP.md`). Apps ainda são stubs (HTTP mínimo com `/health`); nenhuma regra de negócio implementada.

@@ -1,0 +1,4 @@
+# Casca fina: permite `docker compose up` direto da raiz, carregando o .env daqui.
+# A definição real do ambiente vive em docker/docker-compose.yml (MONOREPO_STRUCTURE §6).
+include:
+  - docker/docker-compose.yml
