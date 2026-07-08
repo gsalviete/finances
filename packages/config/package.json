@@ -2,5 +2,10 @@
   "name": "@finances/config",
   "version": "0.1.0",
   "private": true,
-  "description": "Configurações compartilhadas do monorepo (tsconfig; ESLint/Prettier na Fase 2)"
+  "description": "Configurações compartilhadas do monorepo: tsconfig, ESLint, Prettier e Jest",
+  "dependencies": {
+    "@eslint/js": "^9.0.0",
+    "eslint-config-prettier": "^10.0.0",
+    "typescript-eslint": "^8.0.0"
+  }
 }
