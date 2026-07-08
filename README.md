@@ -59,4 +59,4 @@ GitHub Actions (`.github/workflows/ci.yml`), em push na `main` e em PRs: `instal
 
 ## Estado atual
 
-**Fase 4 — Ambiente Docker de desenvolvimento concluída** (ver `docs/IMPLEMENTATION_ROADMAP.md`). Apps ainda são stubs (HTTP mínimo com `/health`); nenhuma regra de negócio implementada.
+**Fase 5 — Utils de domínio (Money + Time) concluída** (ver `docs/IMPLEMENTATION_ROADMAP.md`). `@finances/shared` expõe `Money` (centavos inteiros, sem float) e `Time` (fronteiras de dia/mês em `America/Sao_Paulo`, acesso a "agora" só via `Clock`). Apps ainda são stubs; schemas Zod chegam na Fase 6.

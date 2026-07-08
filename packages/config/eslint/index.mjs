@@ -19,6 +19,20 @@ export default tseslint.config(
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
+      // Fase 5: todo acesso a "agora" passa pelo Clock de @finances/shared.
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: "NewExpression[callee.name='Date'][arguments.length=0]",
+          message:
+            'new Date() lê o relógio da máquina; use Clock (systemClock/fixedClock) de @finances/shared.',
+        },
+        {
+          selector: "CallExpression[callee.object.name='Date'][callee.property.name='now']",
+          message:
+            'Date.now() lê o relógio da máquina; use Clock (systemClock/fixedClock) de @finances/shared.',
+        },
+      ],
     },
   },
   // Desativa regras que conflitam com o Prettier. Sempre por último.
