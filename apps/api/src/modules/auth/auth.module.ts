@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import type { Env } from '../../config/env.schema';
 import { JwtAuthGuard } from '../../common/auth/jwt-auth.guard';
+import { SettingsModule } from '../settings/settings.module';
 import { UsersModule } from '../users/users.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -10,6 +11,7 @@ import { AuthService } from './auth.service';
 @Module({
   imports: [
     UsersModule,
+    SettingsModule,
     JwtModule.registerAsync({
       global: true, // JwtService disponível para o guard em qualquer módulo futuro
       inject: [ConfigService],

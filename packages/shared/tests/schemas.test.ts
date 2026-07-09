@@ -85,6 +85,7 @@ const validRecurringRule = () => ({
   id: oid('a'),
   userId: oid('b'),
   type: 'EXPENSE',
+  investment: false,
   description: 'Aluguel',
   categoryId: oid('c'),
   amountCents: 250000,

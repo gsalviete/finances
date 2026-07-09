@@ -8,6 +8,7 @@ export const recurringRuleMongooseSchema = new Schema(
   {
     userId: { type: Schema.Types.ObjectId, ref: MODELS.User, required: true },
     type: { type: String, enum: TRANSACTION_TYPES, required: true },
+    investment: { type: Boolean, default: false }, // ADR-017: true exige type=EXPENSE
     description: { type: String, required: true },
     categoryId: { type: Schema.Types.ObjectId, ref: MODELS.Category, required: true },
     amountCents: { type: Number, required: true },

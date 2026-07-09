@@ -44,6 +44,14 @@ export class RecurringRulesService {
     input: UpdateRecurringRuleInput,
   ): Promise<RecurringRule> {
     const current = await this.get(userId, id);
+    const type = input.type ?? current.type;
+    const investment = input.investment ?? current.investment;
+    if (investment && type !== 'EXPENSE') {
+      throw new BadRequestException({
+        message: 'regra de investimento exige type=EXPENSE (FR-013 / ADR-017)',
+        issues: [{ path: 'investment', message: 'regra de investimento exige type=EXPENSE' }],
+      });
+    }
     const startDate = input.startDate !== undefined ? input.startDate : current.startDate;
     const endDate = input.endDate !== undefined ? input.endDate : current.endDate;
     if (startDate !== null && endDate !== null && endDate < startDate) {

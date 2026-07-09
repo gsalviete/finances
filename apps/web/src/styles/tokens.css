@@ -1,0 +1,81 @@
+/* Design tokens — ÚNICA fonte de cor/espacamento/raio do app (ARCHITECTURE §6).
+   Nenhum componente usa cor hardcoded: sempre var(--token). */
+:root {
+  /* superfícies e texto */
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --surface-2: #eef0f3;
+  --text: #16181d;
+  --text-muted: #6b7280;
+  --border: #e2e5ea;
+
+  /* marca / ação */
+  --accent: #2563eb;
+  --accent-contrast: #ffffff;
+  --accent-soft: #dbe7ff;
+
+  /* semânticas (ARCHITECTURE §6): verde=confortável, amarelo=atenção,
+     vermelho=crítico, azul=neutro — nunca cor só por estética */
+  --positive: #15803d;
+  --positive-soft: #dcf3e3;
+  --warning: #b45309;
+  --warning-soft: #fdeeda;
+  --danger: #b91c1c;
+  --danger-soft: #fde3e3;
+  --info: #1d4ed8;
+  --info-soft: #dbe7ff;
+
+  /* categorias (paleta nomeada usada pelos tokens category.*) */
+  --category-green: #15803d;
+  --category-blue: #1d4ed8;
+  --category-purple: #7c3aed;
+  --category-orange: #c2410c;
+  --category-pink: #be185d;
+  --category-yellow: #a16207;
+
+  /* forma */
+  --radius: 12px;
+  --radius-sm: 8px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --shadow: 0 1px 3px rgb(0 0 0 / 0.08);
+  --motion: 200ms ease; /* 150–250ms, sempre com propósito */
+  --font:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+[data-theme='dark'] {
+  --bg: #0f1115;
+  --surface: #171a21;
+  --surface-2: #1f232c;
+  --text: #e7e9ee;
+  --text-muted: #9aa1ad;
+  --border: #2a2f3a;
+
+  --accent: #5b8def;
+  --accent-contrast: #0f1115;
+  --accent-soft: #1d2b4a;
+
+  --positive: #4ade80;
+  --positive-soft: #12301c;
+  --warning: #fbbf24;
+  --warning-soft: #362a10;
+  --danger: #f87171;
+  --danger-soft: #3a1414;
+  --info: #93b4f8;
+  --info-soft: #16233f;
+
+  --category-green: #4ade80;
+  --category-blue: #93b4f8;
+  --category-purple: #c4b5fd;
+  --category-orange: #fdba74;
+  --category-pink: #f9a8d4;
+  --category-yellow: #fde047;
+
+  --shadow: 0 1px 3px rgb(0 0 0 / 0.5);
+}

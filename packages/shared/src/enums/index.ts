@@ -46,6 +46,11 @@ export const MOTION_LEVELS = ['FULL', 'REDUCED', 'NONE'] as const;
 export const motionLevelSchema = z.enum(MOTION_LEVELS);
 export type MotionLevel = z.infer<typeof motionLevelSchema>;
 
+/** Ritmo Financeiro (FR-003): Confortável / Dentro do esperado / Atenção / Crítico. */
+export const PACING_STATUSES = ['COMFORTABLE', 'ON_TRACK', 'ATTENTION', 'CRITICAL'] as const;
+export const pacingStatusSchema = z.enum(PACING_STATUSES);
+export type PacingStatus = z.infer<typeof pacingStatusSchema>;
+
 /** Exceção intencional em minúsculas (DATABASE §2.7): casa com next-themes no frontend. */
 export const THEMES = ['light', 'dark', 'system'] as const;
 export const themeSchema = z.enum(THEMES);

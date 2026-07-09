@@ -57,6 +57,25 @@ export class TransactionsRepository extends BaseRepository<Transaction> {
   }
 
   /**
+   * Auto-confirmação lazy (DOMAIN §6.3): promove FORECAST de recorrências
+   * (linkedPlanItemId) e parcelas (installmentGroupId) cuja data chegou.
+   * FORECAST avulsa NUNCA confirma sozinha; edição manual prevalece porque a
+   * promoção usa os valores/data atuais da transação.
+   */
+  async confirmDue(userId: string, now: Date): Promise<number> {
+    const result = await this.model.updateMany(
+      {
+        userId,
+        status: 'FORECAST',
+        date: { $lte: now },
+        $or: [{ linkedPlanItemId: { $ne: null } }, { installmentGroupId: { $ne: null } }],
+      },
+      { $set: { status: 'CONFIRMED' } },
+    );
+    return result.modifiedCount;
+  }
+
+  /**
    * Paginação por cursor com ordenação estável (date desc, _id desc) —
    * usa o índice {userId, date:-1} do DATABASE §3.
    */

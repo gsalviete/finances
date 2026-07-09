@@ -1,11 +1,10 @@
 {
-  "extends": "@finances/config/tsconfig/node.json",
+  "extends": "@finances/config/tsconfig/next.json",
   "compilerOptions": {
-    "rootDir": "src",
-    "outDir": "dist",
     "paths": {
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src"]
+  "include": ["next-env.d.ts", "src", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
 }

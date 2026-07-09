@@ -25,7 +25,12 @@ interface RepoStub {
 
 const makeService = (repo: Partial<RepoStub>) => {
   const jwt = { signAsync: jest.fn().mockResolvedValue('token-jwt') } as unknown as JwtService;
-  return new AuthService(repo as unknown as UsersRepository, jwt);
+  const settings = { getOrCreate: jest.fn().mockResolvedValue({}) };
+  return new AuthService(
+    repo as unknown as UsersRepository,
+    jwt,
+    settings as unknown as import('../src/modules/settings/settings.service').SettingsService,
+  );
 };
 
 describe('AuthService', () => {

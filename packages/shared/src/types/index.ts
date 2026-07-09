@@ -26,6 +26,13 @@ export type {
   TransactionListPage,
   CreateRecurringRuleInput,
   UpdateRecurringRuleInput,
+  MonthlyPlanItemInput,
+  UpdateMonthlyPlanInput,
+  EnsureMonthlyPlanInput,
+  GetMonthlyPlanQuery,
+  DashboardResponse,
+  DashboardQuery,
+  UpdateSettingsInput,
 } from '../schemas';
 export type {
   TransactionType,
@@ -38,5 +45,6 @@ export type {
   BackupProviderType,
   BackupFrequency,
   MotionLevel,
+  PacingStatus,
   Theme,
 } from '../enums';

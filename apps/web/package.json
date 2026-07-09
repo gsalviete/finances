@@ -2,20 +2,36 @@
   "name": "@finances/web",
   "version": "0.1.0",
   "private": true,
-  "description": "Frontend do finances. Stub na Fase 1; Next.js entra na Fase 19.",
-  "main": "dist/main.js",
+  "description": "Frontend do finances (Next.js App Router — Fases 19–23).",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "dev": "next dev",
+    "start": "next start",
+    "build": "next build",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint .",
     "test": "jest"
   },
   "devDependencies": {
     "@finances/config": "workspace:*",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/jest": "^29.0.0",
     "@types/node": "^24.0.0",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
     "jest": "^29.0.0",
+    "jest-environment-jsdom": "^29.7.0",
     "ts-jest": "^29.0.0",
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@finances/shared": "workspace:*",
+    "@tanstack/react-query": "^5.101.2",
+    "framer-motion": "^12.42.2",
+    "lucide-react": "^1.23.0",
+    "next": "^16.2.10",
+    "next-themes": "^0.4.6",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
   }
 }

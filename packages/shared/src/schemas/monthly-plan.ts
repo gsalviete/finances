@@ -40,3 +40,44 @@ export const monthlyPlanSchema = z.object({
 });
 
 export type MonthlyPlan = z.infer<typeof monthlyPlanSchema>;
+
+/**
+ * Item na edição do plano (PUT /planning): com `id` = item existente; sem `id` = novo.
+ * `status` e `linkedTransactionId` são SEMPRE gerenciados pelo sistema.
+ */
+export const monthlyPlanItemInputSchema = monthlyPlanItemSchema
+  .pick({ kind: true, description: true, amountCents: true, categoryId: true })
+  .extend({ id: objectIdSchema.optional() });
+
+export type MonthlyPlanItemInput = z.infer<typeof monthlyPlanItemInputSchema>;
+
+/** PUT /planning — edita itens/notas do snapshot do mês (FR-008). */
+export const updateMonthlyPlanInputSchema = z.object({
+  year: yearSchema,
+  month: monthSchema,
+  notes: z.string().trim().max(2000).optional(),
+  monthlyPlanItems: z.array(monthlyPlanItemInputSchema),
+});
+
+export type UpdateMonthlyPlanInput = z.infer<typeof updateMonthlyPlanInputSchema>;
+
+/** POST /planning — gatilho manual da criação do snapshot (equivalente ao lazy). */
+export const ensureMonthlyPlanInputSchema = z.object({
+  year: yearSchema,
+  month: monthSchema,
+});
+
+export type EnsureMonthlyPlanInput = z.infer<typeof ensureMonthlyPlanInputSchema>;
+
+/** GET /planning — ambos ausentes = mês corrente. */
+export const getMonthlyPlanQuerySchema = z
+  .object({
+    year: z.coerce.number().int().min(1970).max(9999).optional(),
+    month: z.coerce.number().int().min(1).max(12).optional(),
+  })
+  .refine((query) => (query.year === undefined) === (query.month === undefined), {
+    message: 'year e month devem ser informados juntos (ou nenhum, para o mês corrente)',
+    path: ['month'],
+  });
+
+export type GetMonthlyPlanQuery = z.infer<typeof getMonthlyPlanQuerySchema>;

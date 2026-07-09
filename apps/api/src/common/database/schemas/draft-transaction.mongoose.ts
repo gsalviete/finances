@@ -13,7 +13,8 @@ export const draftTransactionMongooseSchema = new Schema(
     clientEventId: { type: String, required: true }, // idempotência (ADR-006)
     confirmedAt: { type: Date, default: null },
   },
-  { timestamps: { createdAt: true, updatedAt: false } },
+  // minimize:false — parsedData:{} é estado legítimo (parser não identificou nada)
+  { timestamps: { createdAt: true, updatedAt: false }, minimize: false },
 );
 
 // Índices (DATABASE §3)

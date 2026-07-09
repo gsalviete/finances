@@ -21,3 +21,19 @@ export const settingsSchema = z.object({
 });
 
 export type Settings = z.infer<typeof settingsSchema>;
+
+/** PUT /settings — atualização parcial das preferências (Fase 17). */
+export const updateSettingsInputSchema = settingsSchema
+  .pick({
+    theme: true,
+    currency: true,
+    language: true,
+    timezone: true,
+    backupFrequency: true,
+    animationsEnabled: true,
+    motionLevel: true,
+  })
+  .partial()
+  .refine((value) => Object.keys(value).length > 0, 'ao menos um campo deve ser informado');
+
+export type UpdateSettingsInput = z.infer<typeof updateSettingsInputSchema>;

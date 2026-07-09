@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
 import { AppModule } from './app.module';
 import { configureApp } from './app.setup';
@@ -11,6 +12,11 @@ async function bootstrap(): Promise<void> {
   app.useLogger(app.get(Logger));
   app.enableShutdownHooks();
   configureApp(app);
+
+  // Hardening (Fase 25 / ARCHITECTURE §7)
+  const env = app.get(ConfigService<Env, true>);
+  app.use(helmet());
+  app.enableCors({ origin: env.get('CORS_ORIGIN', { infer: true }).split(','), credentials: true });
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('finances API')

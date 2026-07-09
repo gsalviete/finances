@@ -9,6 +9,7 @@ import {
   type User,
 } from '@finances/shared';
 import * as argon2 from 'argon2';
+import { SettingsService } from '../settings/settings.service';
 import { UsersRepository } from '../users/repository/users.repository';
 
 @Injectable()
@@ -16,6 +17,7 @@ export class AuthService {
   constructor(
     private readonly usersRepository: UsersRepository,
     private readonly jwtService: JwtService,
+    private readonly settingsService: SettingsService,
   ) {}
 
   /** V1 opera com um único usuário: o segundo registro é rejeitado. */
@@ -29,6 +31,7 @@ export class AuthService {
       email: input.email,
       passwordHash,
     });
+    await this.settingsService.getOrCreate(user.id); // defaults na criação (Fase 17)
     return this.toSession(user);
   }
 

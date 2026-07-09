@@ -39,7 +39,11 @@ export class TransactionsService {
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
 
-  async create(userId: string, input: CreateTransactionInput): Promise<Transaction> {
+  async create(
+    userId: string,
+    input: CreateTransactionInput,
+    origin: 'MANUAL' | 'AUTOMATION' | 'IMPORT' = 'MANUAL',
+  ): Promise<Transaction> {
     await this.assertUsableCategory(userId, input.categoryId);
     return this.repository.create({
       userId,
@@ -49,7 +53,7 @@ export class TransactionsService {
       amountCents: input.amountCents,
       description: input.description,
       date: input.date,
-      origin: 'MANUAL',
+      origin,
     });
   }
 
@@ -101,6 +105,11 @@ export class TransactionsService {
       throw new NotFoundException('Transação não encontrada');
     }
     return updated;
+  }
+
+  /** Verificação lazy da auto-confirmação (DOMAIN §6.3) — disparada nas leituras. */
+  async autoConfirmDue(userId: string): Promise<number> {
+    return this.repository.confirmDue(userId, this.clock.now());
   }
 
   async softDelete(userId: string, id: string): Promise<void> {
