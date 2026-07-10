@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { DraftTransaction } from '@finances/shared';
 import { Check, X } from 'lucide-react';
 import { Shell } from '../../components/layout/Shell';
+import { AnimatePresence, MotionCard, Stagger, StaggerItem } from '../../components/motion';
 import { useCategories } from '../../features/queries';
 import { api } from '../../lib/api-client';
 import { centsToDecimalInput, formatCents } from '../../lib/format';
@@ -42,7 +43,7 @@ export default function InboxPage() {
 
   return (
     <Shell>
-      <section className="card" aria-label="Inbox de automação">
+      <MotionCard interactive={false} aria-label="Inbox de automação">
         <p style={{ margin: '0 0 4px', fontWeight: 600 }}>Inbox</p>
         <p className="muted" style={{ margin: '0 0 12px', fontSize: 13.5 }}>
           Notificações capturadas pelo Atalho aguardando sua revisão. Nenhuma entra no orçamento sem
@@ -53,78 +54,88 @@ export default function InboxPage() {
         ) : (drafts ?? []).length === 0 ? (
           <p className="empty">Inbox vazia — nenhuma notificação pendente.</p>
         ) : (
-          <div className="grid" style={{ gap: 12 }}>
-            {(drafts ?? []).map((draft) => {
-              const amount = parsedAmount(draft);
-              const lowConfidence = draft.confidence < 0.7;
-              return (
-                <div key={draft.id} className="card" style={{ background: 'var(--surface-2)' }}>
-                  <p className="mono" style={{ margin: '0 0 6px', fontSize: 12.5 }}>
-                    {draft.rawNotification}
-                  </p>
-                  <div className="row" style={{ flexWrap: 'wrap', marginBottom: 8 }}>
-                    <span className={`badge ${lowConfidence ? 'badge-warning' : 'badge-info'}`}>
-                      confiança {Math.round(draft.confidence * 100)}%
-                      {lowConfidence ? ' — revisar' : ''}
-                    </span>
-                    {amount !== null ? (
-                      <span className="mono">{formatCents(amount)}</span>
-                    ) : (
-                      <span className="badge badge-danger">valor não identificado</span>
-                    )}
-                    <span className="muted">
-                      {(draft.parsedData as { description?: string }).description ?? ''}
-                    </span>
-                  </div>
-                  <div className="row" style={{ flexWrap: 'wrap' }}>
-                    <select
-                      aria-label="Categoria para confirmar"
-                      value={categoryByDraft[draft.id] ?? ''}
-                      onChange={(e) =>
-                        setCategoryByDraft({ ...categoryByDraft, [draft.id]: e.target.value })
-                      }
-                    >
-                      <option value="">Categoria…</option>
-                      {(categories ?? []).map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name}
-                        </option>
-                      ))}
-                    </select>
-                    <button
-                      type="button"
-                      className="btn btn-primary"
-                      disabled={amount === null || !categoryByDraft[draft.id] || confirm.isPending}
-                      onClick={() =>
-                        confirm.mutate({
-                          id: draft.id,
-                          categoryId: categoryByDraft[draft.id] as string,
-                        })
-                      }
-                    >
-                      <Check size={14} aria-hidden /> Confirmar
-                    </button>
-                    <button
-                      type="button"
-                      className="btn"
-                      disabled={ignore.isPending}
-                      onClick={() => ignore.mutate(draft.id)}
-                    >
-                      <X size={14} aria-hidden /> Ignorar
-                    </button>
-                  </div>
-                  {amount !== null && (
-                    <p className="muted" style={{ margin: '8px 0 0', fontSize: 12 }}>
-                      Será registrada como despesa confirmada de{' '}
-                      <span className="mono">{centsToDecimalInput(amount)}</span>
+          <Stagger className="grid" style={{ gap: 12 }}>
+            <AnimatePresence initial={false}>
+              {(drafts ?? []).map((draft) => {
+                const amount = parsedAmount(draft);
+                const lowConfidence = draft.confidence < 0.7;
+                return (
+                  <StaggerItem
+                    key={draft.id}
+                    layout
+                    exit={{ opacity: 0, scale: 0.96 }}
+                    className="card"
+                    style={{ background: 'var(--surface-2)' }}
+                  >
+                    <p className="mono" style={{ margin: '0 0 6px', fontSize: 12.5 }}>
+                      {draft.rawNotification}
                     </p>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+                    <div className="row" style={{ flexWrap: 'wrap', marginBottom: 8 }}>
+                      <span className={`badge ${lowConfidence ? 'badge-warning' : 'badge-info'}`}>
+                        confiança {Math.round(draft.confidence * 100)}%
+                        {lowConfidence ? ' — revisar' : ''}
+                      </span>
+                      {amount !== null ? (
+                        <span className="mono">{formatCents(amount)}</span>
+                      ) : (
+                        <span className="badge badge-danger">valor não identificado</span>
+                      )}
+                      <span className="muted">
+                        {(draft.parsedData as { description?: string }).description ?? ''}
+                      </span>
+                    </div>
+                    <div className="row" style={{ flexWrap: 'wrap' }}>
+                      <select
+                        aria-label="Categoria para confirmar"
+                        value={categoryByDraft[draft.id] ?? ''}
+                        onChange={(e) =>
+                          setCategoryByDraft({ ...categoryByDraft, [draft.id]: e.target.value })
+                        }
+                      >
+                        <option value="">Categoria…</option>
+                        {(categories ?? []).map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.name}
+                          </option>
+                        ))}
+                      </select>
+                      <button
+                        type="button"
+                        className="btn btn-primary"
+                        disabled={
+                          amount === null || !categoryByDraft[draft.id] || confirm.isPending
+                        }
+                        onClick={() =>
+                          confirm.mutate({
+                            id: draft.id,
+                            categoryId: categoryByDraft[draft.id] as string,
+                          })
+                        }
+                      >
+                        <Check size={14} aria-hidden /> Confirmar
+                      </button>
+                      <button
+                        type="button"
+                        className="btn"
+                        disabled={ignore.isPending}
+                        onClick={() => ignore.mutate(draft.id)}
+                      >
+                        <X size={14} aria-hidden /> Ignorar
+                      </button>
+                    </div>
+                    {amount !== null && (
+                      <p className="muted" style={{ margin: '8px 0 0', fontSize: 12 }}>
+                        Será registrada como despesa confirmada de{' '}
+                        <span className="mono">{centsToDecimalInput(amount)}</span>
+                      </p>
+                    )}
+                  </StaggerItem>
+                );
+              })}
+            </AnimatePresence>
+          </Stagger>
         )}
-      </section>
+      </MotionCard>
     </Shell>
   );
 }

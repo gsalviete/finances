@@ -6,6 +6,7 @@ import { useTheme } from 'next-themes';
 import type { UpdateSettingsInput } from '@finances/shared';
 import { Save } from 'lucide-react';
 import { Shell } from '../../components/layout/Shell';
+import { MotionCard } from '../../components/motion';
 import { useSettings, useSettingsMutation } from '../../features/queries';
 import { ApiError } from '../../lib/api-client';
 
@@ -40,7 +41,7 @@ export default function SettingsPage() {
 
   return (
     <Shell>
-      <section className="card" aria-label="Preferências">
+      <MotionCard interactive={false} aria-label="Preferências">
         <p style={{ margin: '0 0 12px', fontWeight: 600 }}>Preferências</p>
         {isLoading || !data ? (
           <div className="skeleton" style={{ height: 140 }} role="status" />
@@ -139,7 +140,7 @@ export default function SettingsPage() {
             </span>
           )}
         </div>
-      </section>
+      </MotionCard>
     </Shell>
   );
 }

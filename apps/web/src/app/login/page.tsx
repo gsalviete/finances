@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Wallet } from 'lucide-react';
+import { AnimatePresence, motion } from '../../components/motion';
 import { ApiError } from '../../lib/api-client';
 import { useSession } from '../../lib/session';
 
@@ -37,20 +38,49 @@ export default function LoginPage() {
 
   return (
     <main className="content" style={{ maxWidth: 400, paddingTop: 64 }}>
-      <div className="card grid" style={{ gap: 16 }}>
-        <div className="row" style={{ fontWeight: 700, fontSize: 20 }}>
-          <Wallet size={22} aria-hidden /> finances
+      <motion.div
+        className="card card-hero grid"
+        style={{ gap: 16 }}
+        initial={{ opacity: 0, y: 24, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <div className="row" style={{ fontWeight: 700, fontSize: 22 }}>
+          <span
+            style={{
+              display: 'grid',
+              placeItems: 'center',
+              width: 38,
+              height: 38,
+              borderRadius: 11,
+              background: 'var(--brand-gradient)',
+              color: '#fff',
+              boxShadow: 'var(--brand-glow)',
+            }}
+          >
+            <Wallet size={20} aria-hidden />
+          </span>
+          <span className="brand-mark">finances</span>
         </div>
         <p className="muted" style={{ margin: 0 }}>
           Quanto eu ainda posso gastar até o final deste mês?
         </p>
         <form onSubmit={submit} className="grid" style={{ gap: 12 }}>
-          {mode === 'register' && (
-            <div className="field">
-              <label htmlFor="name">Nome</label>
-              <input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
-            </div>
-          )}
+          <AnimatePresence initial={false}>
+            {mode === 'register' && (
+              <motion.div
+                className="field"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                style={{ overflow: 'hidden' }}
+              >
+                <label htmlFor="name">Nome</label>
+                <input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
+              </motion.div>
+            )}
+          </AnimatePresence>
           <div className="field">
             <label htmlFor="email">Email</label>
             <input
@@ -88,7 +118,7 @@ export default function LoginPage() {
         >
           {mode === 'login' ? 'Primeiro acesso? Criar conta' : 'Já tenho conta'}
         </button>
-      </div>
+      </motion.div>
     </main>
   );
 }

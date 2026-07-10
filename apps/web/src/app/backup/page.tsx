@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { Download, HardDriveUpload, ShieldCheck } from 'lucide-react';
 import { Shell } from '../../components/layout/Shell';
+import { MotionCard, Stagger } from '../../components/motion';
 import { ApiError, apiRaw } from '../../lib/api-client';
 
 export default function BackupPage() {
@@ -67,8 +68,8 @@ export default function BackupPage() {
 
   return (
     <Shell>
-      <div className="grid">
-        <section className="card" aria-label="Exportar dados">
+      <Stagger className="grid">
+        <MotionCard interactive={false} aria-label="Exportar dados">
           <p style={{ margin: '0 0 4px', fontWeight: 600 }}>Exportar meus dados</p>
           <p className="muted" style={{ margin: '0 0 12px', fontSize: 13.5 }}>
             ZIP com transações, categorias, planejamentos, recorrências e preferências. Nunca inclui
@@ -77,9 +78,9 @@ export default function BackupPage() {
           <button type="button" className="btn btn-primary" onClick={exportZip} disabled={busy}>
             <Download size={15} aria-hidden /> Exportar ZIP
           </button>
-        </section>
+        </MotionCard>
 
-        <section className="card" aria-label="Importar dados">
+        <MotionCard interactive={false} aria-label="Importar dados">
           <p style={{ margin: '0 0 4px', fontWeight: 600 }}>Importar (restaurar)</p>
           <p className="muted" style={{ margin: '0 0 12px', fontSize: 13.5 }}>
             Estratégia REPLACE: o conteúdo do arquivo <strong>substitui integralmente</strong> os
@@ -109,9 +110,9 @@ export default function BackupPage() {
               <HardDriveUpload size={15} aria-hidden /> Importar e substituir
             </button>
           </div>
-        </section>
+        </MotionCard>
 
-        <section className="card" aria-label="Backup manual">
+        <MotionCard interactive={false} aria-label="Backup manual">
           <p style={{ margin: '0 0 4px', fontWeight: 600 }}>Backup agora</p>
           <p className="muted" style={{ margin: '0 0 12px', fontSize: 13.5 }}>
             Grava um artefato pelo provedor configurado (Local em dev, Object Storage em produção) e
@@ -120,14 +121,14 @@ export default function BackupPage() {
           <button type="button" className="btn" onClick={runBackup} disabled={busy}>
             <ShieldCheck size={15} aria-hidden /> Executar backup
           </button>
-        </section>
+        </MotionCard>
 
         {feedback && (
           <p className="muted" role="status" style={{ margin: 0, fontSize: 13.5 }}>
             {feedback}
           </p>
         )}
-      </div>
+      </Stagger>
     </Shell>
   );
 }

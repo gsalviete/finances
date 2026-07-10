@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { monthYearOf, systemClock, type MonthlyPlanItemInput } from '@finances/shared';
 import { Plus, Save, Trash2 } from 'lucide-react';
 import { Shell } from '../../components/layout/Shell';
+import { MotionCard, Stagger } from '../../components/motion';
 import { useCategories, usePlan, usePlanMutations, useRules } from '../../features/queries';
 import { ApiError } from '../../lib/api-client';
 import { centsToDecimalInput, formatCents, parseDecimalToCents } from '../../lib/format';
@@ -86,11 +87,11 @@ export default function PlanningPage() {
 
   return (
     <Shell>
-      <div className="grid">
+      <Stagger className="grid">
         {isLoading && <div className="skeleton" style={{ height: 160 }} role="status" />}
 
         {isError && (
-          <section className="card" aria-label="Assistente de início de mês">
+          <MotionCard interactive={false} aria-label="Assistente de início de mês">
             <p style={{ margin: 0, fontWeight: 600 }}>
               Iniciar {current.month}/{current.year}
             </p>
@@ -130,11 +131,11 @@ export default function PlanningPage() {
             >
               Confirmar e iniciar o mês
             </button>
-          </section>
+          </MotionCard>
         )}
 
         {plan && (
-          <section className="card" aria-label="Plano do mês">
+          <MotionCard interactive={false} aria-label="Plano do mês">
             <div className="row" style={{ justifyContent: 'space-between', marginBottom: 8 }}>
               <p style={{ margin: 0, fontWeight: 600 }}>
                 Plano de {plan.month}/{plan.year}
@@ -251,9 +252,9 @@ export default function PlanningPage() {
                 {feedback}
               </p>
             )}
-          </section>
+          </MotionCard>
         )}
-      </div>
+      </Stagger>
     </Shell>
   );
 }

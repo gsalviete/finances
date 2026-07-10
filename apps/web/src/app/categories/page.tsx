@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { Archive, ArchiveRestore, Plus, Trash2 } from 'lucide-react';
 import { Shell } from '../../components/layout/Shell';
+import { AnimatePresence, MotionCard, Stagger, StaggerItem } from '../../components/motion';
 import { useCategories, useCategoryMutations } from '../../features/queries';
 import { ApiError } from '../../lib/api-client';
 
@@ -14,6 +15,7 @@ const COLOR_TOKENS = [
   'category-orange',
   'category-pink',
   'category-yellow',
+  'category-red',
 ];
 
 export default function CategoriesPage() {
@@ -49,8 +51,8 @@ export default function CategoriesPage() {
 
   return (
     <Shell>
-      <div className="grid">
-        <section className="card" aria-label="Nova categoria">
+      <Stagger className="grid">
+        <MotionCard interactive={false} aria-label="Nova categoria">
           <p style={{ margin: '0 0 12px', fontWeight: 600 }}>Nova categoria</p>
           <form onSubmit={submit} className="row" style={{ flexWrap: 'wrap' }}>
             <div className="field" style={{ flex: 1, minWidth: 160 }}>
@@ -84,9 +86,9 @@ export default function CategoriesPage() {
               {feedback}
             </p>
           )}
-        </section>
+        </MotionCard>
 
-        <section className="card" aria-label="Lista de categorias">
+        <MotionCard interactive={false} aria-label="Lista de categorias">
           <div className="row" style={{ justifyContent: 'space-between', marginBottom: 8 }}>
             <p style={{ margin: 0, fontWeight: 600 }}>Categorias</p>
             <label className="row" style={{ gap: 6, fontSize: 13.5 }}>
@@ -103,60 +105,68 @@ export default function CategoriesPage() {
           ) : (data ?? []).length === 0 ? (
             <p className="empty">Nenhuma categoria — crie a primeira acima.</p>
           ) : (
-            <div className="grid" style={{ gap: 8 }}>
-              {(data ?? []).map((category) => (
-                <div key={category.id} className="row" style={{ justifyContent: 'space-between' }}>
-                  <span className="row">
-                    <span
-                      aria-hidden
-                      style={{
-                        width: 12,
-                        height: 12,
-                        borderRadius: 999,
-                        background: `var(--${category.color.replace('category.', 'category-')})`,
-                      }}
-                    />
-                    {category.name}
-                    {category.archived && <span className="badge badge-neutral">arquivada</span>}
-                    {category.expiresAt !== null && (
-                      <span className="badge badge-warning">temporária</span>
-                    )}
-                  </span>
-                  <span className="row">
-                    <button
-                      type="button"
-                      className="btn"
-                      aria-label={category.archived ? 'Restaurar' : 'Arquivar'}
-                      title={category.archived ? 'Restaurar' : 'Arquivar'}
-                      onClick={() =>
-                        update.mutate({
-                          id: category.id,
-                          input: { archived: !category.archived },
-                        })
-                      }
-                    >
-                      {category.archived ? (
-                        <ArchiveRestore size={14} aria-hidden />
-                      ) : (
-                        <Archive size={14} aria-hidden />
+            <Stagger className="grid" style={{ gap: 8 }}>
+              <AnimatePresence initial={false}>
+                {(data ?? []).map((category) => (
+                  <StaggerItem
+                    key={category.id}
+                    layout
+                    exit={{ opacity: 0, x: -12 }}
+                    className="row"
+                    style={{ justifyContent: 'space-between' }}
+                  >
+                    <span className="row">
+                      <span
+                        aria-hidden
+                        style={{
+                          width: 12,
+                          height: 12,
+                          borderRadius: 999,
+                          background: `var(--${category.color.replace('category.', 'category-')})`,
+                        }}
+                      />
+                      {category.name}
+                      {category.archived && <span className="badge badge-neutral">arquivada</span>}
+                      {category.expiresAt !== null && (
+                        <span className="badge badge-warning">temporária</span>
                       )}
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-danger"
-                      aria-label="Excluir"
-                      title="Excluir"
-                      onClick={() => removeCategory(category.id, category.name)}
-                    >
-                      <Trash2 size={14} aria-hidden />
-                    </button>
-                  </span>
-                </div>
-              ))}
-            </div>
+                    </span>
+                    <span className="row">
+                      <button
+                        type="button"
+                        className="btn"
+                        aria-label={category.archived ? 'Restaurar' : 'Arquivar'}
+                        title={category.archived ? 'Restaurar' : 'Arquivar'}
+                        onClick={() =>
+                          update.mutate({
+                            id: category.id,
+                            input: { archived: !category.archived },
+                          })
+                        }
+                      >
+                        {category.archived ? (
+                          <ArchiveRestore size={14} aria-hidden />
+                        ) : (
+                          <Archive size={14} aria-hidden />
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-danger"
+                        aria-label="Excluir"
+                        title="Excluir"
+                        onClick={() => removeCategory(category.id, category.name)}
+                      >
+                        <Trash2 size={14} aria-hidden />
+                      </button>
+                    </span>
+                  </StaggerItem>
+                ))}
+              </AnimatePresence>
+            </Stagger>
           )}
-        </section>
-      </div>
+        </MotionCard>
+      </Stagger>
     </Shell>
   );
 }

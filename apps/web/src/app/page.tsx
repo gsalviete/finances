@@ -9,6 +9,7 @@ import {
   RecentTransactions,
   TopCategories,
 } from '../components/dashboard/cards';
+import { Stagger } from '../components/motion';
 import { useDashboard } from '../features/queries';
 
 export default function HomePage() {
@@ -32,18 +33,18 @@ export default function HomePage() {
         </div>
       )}
       {data && (
-        <div className="grid">
+        <Stagger className="grid">
           <HeroCard dash={data} />
           <LensesRow dash={data} />
           <PacingCard dash={data} />
-          <div
+          <Stagger
             className="grid"
             style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}
           >
             <RecentTransactions dash={data} />
             <TopCategories dash={data} />
-          </div>
-        </div>
+          </Stagger>
+        </Stagger>
       )}
     </Shell>
   );

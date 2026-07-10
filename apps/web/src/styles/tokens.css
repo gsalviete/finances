@@ -11,8 +11,12 @@
 
   /* marca / ação */
   --accent: #2563eb;
+  --accent-2: #4f46e5;
   --accent-contrast: #ffffff;
   --accent-soft: #dbe7ff;
+  /* gradiente de marca — usado em destaques/hero (deriva do accent) */
+  --brand-gradient: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+  --brand-glow: 0 0 0 1px rgb(37 99 235 / 0.12), 0 8px 30px -8px rgb(37 99 235 / 0.28);
 
   /* semânticas (ARCHITECTURE §6): verde=confortável, amarelo=atenção,
      vermelho=crítico, azul=neutro — nunca cor só por estética */
@@ -32,21 +36,39 @@
   --category-orange: #c2410c;
   --category-pink: #be185d;
   --category-yellow: #a16207;
+  --category-red: #b91c1c;
 
   /* forma */
-  --radius: 12px;
-  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-sm: 9px;
+  --radius-lg: 20px;
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
   --space-5: 24px;
   --space-6: 32px;
-  --shadow: 0 1px 3px rgb(0 0 0 / 0.08);
+
+  /* elevação em camadas (superfície clara → sombra suave e difusa) */
+  --shadow: 0 1px 2px rgb(16 24 40 / 0.05), 0 1px 3px rgb(16 24 40 / 0.06);
+  --shadow-md: 0 2px 4px rgb(16 24 40 / 0.05), 0 6px 16px -6px rgb(16 24 40 / 0.12);
+  --shadow-lg: 0 10px 30px -10px rgb(16 24 40 / 0.22), 0 4px 10px -6px rgb(16 24 40 / 0.12);
+  --ring: 0 0 0 1px var(--border);
+
+  /* motion — escalas nomeadas para uso consistente com Framer Motion */
   --motion: 200ms ease; /* 150–250ms, sempre com propósito */
+  --motion-fast: 140ms cubic-bezier(0.2, 0, 0, 1);
+  --motion-slow: 420ms cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --font:
     ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* controles de formulário — altura única e seta de select por tema */
+  --control-h: 40px;
+  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  /* popups nativos (date picker, lista do select) seguem o tema */
+  color-scheme: light;
 }
 
 [data-theme='dark'] {
@@ -58,8 +80,11 @@
   --border: #2a2f3a;
 
   --accent: #5b8def;
+  --accent-2: #8b7df5;
   --accent-contrast: #0f1115;
   --accent-soft: #1d2b4a;
+  --brand-gradient: linear-gradient(135deg, #5b8def 0%, #8b7df5 100%);
+  --brand-glow: 0 0 0 1px rgb(91 141 239 / 0.18), 0 10px 40px -10px rgb(91 141 239 / 0.4);
 
   --positive: #4ade80;
   --positive-soft: #12301c;
@@ -76,6 +101,13 @@
   --category-orange: #fdba74;
   --category-pink: #f9a8d4;
   --category-yellow: #fde047;
+  --category-red: #f87171;
 
-  --shadow: 0 1px 3px rgb(0 0 0 / 0.5);
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 1px 3px rgb(0 0 0 / 0.5);
+  --shadow-md: 0 2px 6px rgb(0 0 0 / 0.4), 0 8px 24px -8px rgb(0 0 0 / 0.55);
+  --shadow-lg: 0 16px 40px -12px rgb(0 0 0 / 0.7), 0 6px 14px -8px rgb(0 0 0 / 0.5);
+  --ring: 0 0 0 1px var(--border);
+
+  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239aa1ad' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  color-scheme: dark;
 }

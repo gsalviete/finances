@@ -5,6 +5,8 @@ import { useMemo, useState } from 'react';
 import { systemClock, type Transaction } from '@finances/shared';
 import { Check, Plus, Trash2, XCircle } from 'lucide-react';
 import { Shell } from '../../components/layout/Shell';
+import { SegmentedControl } from '../../components/ui/SegmentedControl';
+import { AnimatePresence, MotionCard, Stagger, motion } from '../../components/motion';
 import {
   useCategories,
   useTransactionMutations,
@@ -110,8 +112,8 @@ export default function TransactionsPage() {
 
   return (
     <Shell>
-      <div className="grid">
-        <section className="card" aria-label="Nova movimentação">
+      <Stagger className="grid">
+        <MotionCard interactive={false} aria-label="Nova movimentação">
           <p style={{ margin: '0 0 12px', fontWeight: 600 }}>Registrar movimentação</p>
           <form
             onSubmit={submit}
@@ -216,24 +218,28 @@ export default function TransactionsPage() {
               {feedback}
             </p>
           )}
-        </section>
+        </MotionCard>
 
-        <section className="card" aria-label="Lista de transações">
-          <div className="row" style={{ justifyContent: 'space-between', marginBottom: 8 }}>
+        <MotionCard interactive={false} aria-label="Lista de transações">
+          <div
+            className="row"
+            style={{ justifyContent: 'space-between', flexWrap: 'wrap', marginBottom: 8 }}
+          >
             <p style={{ margin: 0, fontWeight: 600 }}>Movimentações</p>
-            <select
-              aria-label="Filtrar por status"
+            <SegmentedControl
+              ariaLabel="Filtrar por status"
               value={statusFilter}
-              onChange={(e) => {
-                setStatusFilter(e.target.value);
+              onChange={(value) => {
+                setStatusFilter(value);
                 resetList();
               }}
-            >
-              <option value="">Todas</option>
-              <option value="CONFIRMED">Confirmadas</option>
-              <option value="FORECAST">Previstas</option>
-              <option value="CANCELLED">Canceladas</option>
-            </select>
+              options={[
+                { value: '', label: 'Todas' },
+                { value: 'CONFIRMED', label: 'Confirmadas' },
+                { value: 'FORECAST', label: 'Previstas' },
+                { value: 'CANCELLED', label: 'Canceladas' },
+              ]}
+            />
           </div>
           {isLoading && allItems.length === 0 ? (
             <div className="skeleton" style={{ height: 120 }} role="status" />
@@ -251,70 +257,79 @@ export default function TransactionsPage() {
                 </tr>
               </thead>
               <tbody>
-                {allItems.map((t) => (
-                  <tr key={t.id}>
-                    <td>{formatDate(t.date)}</td>
-                    <td>
-                      {t.description || <span className="muted">—</span>}
-                      {t.installmentNumber !== null && (
-                        <span className="muted" style={{ fontSize: 12 }}>
-                          {' '}
-                          ({t.installmentNumber}/{t.installmentTotal})
-                        </span>
-                      )}
-                    </td>
-                    <td>
-                      <span
-                        className={`badge ${t.status === 'CONFIRMED' ? 'badge-positive' : t.status === 'FORECAST' ? 'badge-info' : 'badge-neutral'}`}
-                      >
-                        {STATUS_LABEL[t.status]}
-                      </span>
-                    </td>
-                    <td
-                      className="mono"
-                      style={{
-                        textAlign: 'right',
-                        color: t.type === 'INCOME' ? 'var(--positive)' : 'var(--text)',
-                      }}
+                <AnimatePresence initial={false}>
+                  {allItems.map((t) => (
+                    <motion.tr
+                      key={t.id}
+                      layout
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
                     >
-                      {t.type === 'INCOME' ? '+' : '−'}
-                      {formatCents(t.amountCents)}
-                    </td>
-                    <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
-                      {t.status === 'FORECAST' && (
-                        <button
-                          type="button"
-                          className="btn"
-                          title="Confirmar"
-                          aria-label="Confirmar"
-                          onClick={() => patchStatus(t.id, 'CONFIRMED')}
+                      <td>{formatDate(t.date)}</td>
+                      <td>
+                        {t.description || <span className="muted">—</span>}
+                        {t.installmentNumber !== null && (
+                          <span className="muted" style={{ fontSize: 12 }}>
+                            {' '}
+                            ({t.installmentNumber}/{t.installmentTotal})
+                          </span>
+                        )}
+                      </td>
+                      <td>
+                        <span
+                          className={`badge ${t.status === 'CONFIRMED' ? 'badge-positive' : t.status === 'FORECAST' ? 'badge-info' : 'badge-neutral'}`}
                         >
-                          <Check size={14} aria-hidden />
-                        </button>
-                      )}{' '}
-                      {t.status !== 'CANCELLED' && (
-                        <button
-                          type="button"
-                          className="btn"
-                          title="Cancelar"
-                          aria-label="Cancelar"
-                          onClick={() => patchStatus(t.id, 'CANCELLED')}
-                        >
-                          <XCircle size={14} aria-hidden />
-                        </button>
-                      )}{' '}
-                      <button
-                        type="button"
-                        className="btn btn-danger"
-                        title="Excluir"
-                        aria-label="Excluir"
-                        onClick={() => remove(t)}
+                          {STATUS_LABEL[t.status]}
+                        </span>
+                      </td>
+                      <td
+                        className="mono"
+                        style={{
+                          textAlign: 'right',
+                          color: t.type === 'INCOME' ? 'var(--positive)' : 'var(--text)',
+                        }}
                       >
-                        <Trash2 size={14} aria-hidden />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                        {t.type === 'INCOME' ? '+' : '−'}
+                        {formatCents(t.amountCents)}
+                      </td>
+                      <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                        {t.status === 'FORECAST' && (
+                          <button
+                            type="button"
+                            className="btn"
+                            title="Confirmar"
+                            aria-label="Confirmar"
+                            onClick={() => patchStatus(t.id, 'CONFIRMED')}
+                          >
+                            <Check size={14} aria-hidden />
+                          </button>
+                        )}{' '}
+                        {t.status !== 'CANCELLED' && (
+                          <button
+                            type="button"
+                            className="btn"
+                            title="Cancelar"
+                            aria-label="Cancelar"
+                            onClick={() => patchStatus(t.id, 'CANCELLED')}
+                          >
+                            <XCircle size={14} aria-hidden />
+                          </button>
+                        )}{' '}
+                        <button
+                          type="button"
+                          className="btn btn-danger"
+                          title="Excluir"
+                          aria-label="Excluir"
+                          onClick={() => remove(t)}
+                        >
+                          <Trash2 size={14} aria-hidden />
+                        </button>
+                      </td>
+                    </motion.tr>
+                  ))}
+                </AnimatePresence>
               </tbody>
             </table>
           )}
@@ -332,8 +347,8 @@ export default function TransactionsPage() {
               </button>
             </div>
           )}
-        </section>
-      </div>
+        </MotionCard>
+      </Stagger>
     </Shell>
   );
 }
