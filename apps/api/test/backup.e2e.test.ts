@@ -66,7 +66,7 @@ describe('Backup e2e — export ZIP, import REPLACE, provider Local (Fase 18)', 
 
   let exportedZip: Buffer;
 
-  it('GET /backup/export baixa ZIP com as 5 coleções + metadata, sem dados sensíveis', async () => {
+  it('GET /backup/export baixa ZIP com as 6 coleções + metadata, sem dados sensíveis', async () => {
     const res = await request(api())
       .get('/api/v1/backup/export')
       .set(auth())
@@ -89,6 +89,7 @@ describe('Backup e2e — export ZIP, import REPLACE, provider Local (Fase 18)', 
       'recurringRules.json',
       'settings.json',
       'transactions.json',
+      'wishlistItems.json', // ADR-018
     ]);
     const all = (await Promise.all(names.map((name) => zip.file(name)!.async('string')))).join('');
     expect(all).not.toContain('passwordHash');

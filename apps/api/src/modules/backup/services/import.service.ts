@@ -6,6 +6,7 @@ import {
   recurringRuleSchema,
   settingsSchema,
   transactionSchema,
+  wishlistItemSchema,
 } from '@finances/shared';
 import JSZip from 'jszip';
 import type { Model } from 'mongoose';
@@ -37,6 +38,8 @@ export class ImportService {
     @InjectModel(MODELS.MonthlyPlan) private readonly plans: Model<Record<string, unknown>>,
     @InjectModel(MODELS.RecurringRule) private readonly rules: Model<Record<string, unknown>>,
     @InjectModel(MODELS.Settings) private readonly settings: Model<Record<string, unknown>>,
+    @InjectModel(MODELS.WishlistItem)
+    private readonly wishlistItems: Model<Record<string, unknown>>,
   ) {}
 
   async replaceFromZip(userId: string, zipBuffer: Buffer): Promise<ImportSummary> {
@@ -49,6 +52,7 @@ export class ImportService {
       { model: this.plans, docs: parsed.monthlyPlans },
       { model: this.rules, docs: parsed.recurringRules },
       { model: this.settings, docs: parsed.settings },
+      { model: this.wishlistItems, docs: parsed.wishlistItems },
     ];
     const counts: Record<string, number> = {};
     for (const { model, docs } of targets) {
@@ -134,6 +138,15 @@ export class ImportService {
         await readJson(`${COLLECTIONS.settings}.json`),
         'settings',
       ),
+      // ADR-018: opcional — ZIPs anteriores à wishlist continuam importáveis
+      wishlistItems:
+        zip.file(`${COLLECTIONS.wishlistItems}.json`) === null
+          ? []
+          : validate(
+              wishlistItemSchema,
+              await readJson(`${COLLECTIONS.wishlistItems}.json`),
+              'wishlistItems',
+            ),
     };
   }
 

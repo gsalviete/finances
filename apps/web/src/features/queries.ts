@@ -17,6 +17,9 @@ import type {
   UpdateMonthlyPlanInput,
   UpdateSettingsInput,
   UpdateTransactionInput,
+  UpdateWishlistItemInput,
+  CreateWishlistItemInput,
+  WishlistItem,
 } from '@finances/shared';
 import { api } from '../lib/api-client';
 
@@ -156,4 +159,33 @@ export function useSettingsMutation() {
       api<Settings>('/settings', { method: 'PUT', body: input }),
     onSuccess: () => void client.invalidateQueries({ queryKey: ['settings'] }),
   });
+}
+
+// ---------- wishlist (ADR-018 — isolada do núcleo financeiro) ----------
+export const useWishlist = () =>
+  useQuery({ queryKey: ['wishlist'], queryFn: () => api<WishlistItem[]>('/wishlist') });
+
+export function useWishlistMutations() {
+  const client = useQueryClient();
+  const invalidate = () => void client.invalidateQueries({ queryKey: ['wishlist'] });
+  return {
+    create: useMutation({
+      mutationFn: (input: CreateWishlistItemInput) =>
+        api<WishlistItem>('/wishlist', { method: 'POST', body: input }),
+      onSuccess: invalidate,
+    }),
+    update: useMutation({
+      mutationFn: ({ id, input }: { id: string; input: UpdateWishlistItemInput }) =>
+        api<WishlistItem>(`/wishlist/${id}`, { method: 'PATCH', body: input }),
+      onSuccess: invalidate,
+    }),
+    refresh: useMutation({
+      mutationFn: (id: string) => api<WishlistItem>(`/wishlist/${id}/refresh`, { method: 'POST' }),
+      onSuccess: invalidate,
+    }),
+    remove: useMutation({
+      mutationFn: (id: string) => api<void>(`/wishlist/${id}`, { method: 'DELETE' }),
+      onSuccess: invalidate,
+    }),
+  };
 }

@@ -1,47 +1,49 @@
 /* Design tokens — ÚNICA fonte de cor/espacamento/raio do app (ARCHITECTURE §6).
-   Nenhum componente usa cor hardcoded: sempre var(--token). */
+   Identidade "instrumento de registro" (verdigris): papel-porcelana no claro,
+   tinta verde-negra no escuro, acento verdígris. Nenhum componente usa cor
+   hardcoded: sempre var(--token). */
 :root {
-  /* superfícies e texto */
-  --bg: #f6f7f9;
-  --surface: #ffffff;
-  --surface-2: #eef0f3;
-  --text: #16181d;
-  --text-muted: #6b7280;
-  --border: #e2e5ea;
+  /* superfícies e texto — papel quente, tinta esverdeada */
+  --bg: #f3f3ef;
+  --surface: #fcfcfa;
+  --surface-2: #eaebe4;
+  --text: #191f1c;
+  --text-muted: #63706a;
+  --border: #dee1d8;
 
-  /* marca / ação */
-  --accent: #2563eb;
-  --accent-2: #4f46e5;
+  /* marca / ação — verdígris (teal profundo) */
+  --accent: #0c7a6c;
+  --accent-2: #0a5a50;
   --accent-contrast: #ffffff;
-  --accent-soft: #dbe7ff;
+  --accent-soft: #dcece7;
   /* gradiente de marca — usado em destaques/hero (deriva do accent) */
-  --brand-gradient: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
-  --brand-glow: 0 0 0 1px rgb(37 99 235 / 0.12), 0 8px 30px -8px rgb(37 99 235 / 0.28);
+  --brand-gradient: linear-gradient(135deg, #0e8577 0%, #0a5a50 100%);
+  --brand-glow: 0 0 0 1px rgb(12 122 108 / 0.14), 0 8px 30px -8px rgb(12 122 108 / 0.3);
 
   /* semânticas (ARCHITECTURE §6): verde=confortável, amarelo=atenção,
-     vermelho=crítico, azul=neutro — nunca cor só por estética */
-  --positive: #15803d;
-  --positive-soft: #dcf3e3;
-  --warning: #b45309;
-  --warning-soft: #fdeeda;
-  --danger: #b91c1c;
-  --danger-soft: #fde3e3;
-  --info: #1d4ed8;
-  --info-soft: #dbe7ff;
+     vermelho=crítico, neutro=cor da marca — nunca cor só por estética */
+  --positive: #457a1e;
+  --positive-soft: #e4f0d5;
+  --warning: #a15c07;
+  --warning-soft: #f8ecd7;
+  --danger: #b3261e;
+  --danger-soft: #f9e2e0;
+  --info: #0c7a6c;
+  --info-soft: #dcece7;
 
   /* categorias (paleta nomeada usada pelos tokens category.*) */
-  --category-green: #15803d;
-  --category-blue: #1d4ed8;
-  --category-purple: #7c3aed;
-  --category-orange: #c2410c;
-  --category-pink: #be185d;
-  --category-yellow: #a16207;
-  --category-red: #b91c1c;
+  --category-green: #457a1e;
+  --category-blue: #1d5fb4;
+  --category-purple: #6d3fc0;
+  --category-orange: #b4530f;
+  --category-pink: #b02664;
+  --category-yellow: #96700a;
+  --category-red: #b3261e;
 
   /* forma */
   --radius: 14px;
   --radius-sm: 9px;
-  --radius-lg: 20px;
+  --radius-lg: 22px;
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -50,9 +52,9 @@
   --space-6: 32px;
 
   /* elevação em camadas (superfície clara → sombra suave e difusa) */
-  --shadow: 0 1px 2px rgb(16 24 40 / 0.05), 0 1px 3px rgb(16 24 40 / 0.06);
-  --shadow-md: 0 2px 4px rgb(16 24 40 / 0.05), 0 6px 16px -6px rgb(16 24 40 / 0.12);
-  --shadow-lg: 0 10px 30px -10px rgb(16 24 40 / 0.22), 0 4px 10px -6px rgb(16 24 40 / 0.12);
+  --shadow: 0 1px 2px rgb(23 28 25 / 0.05), 0 1px 3px rgb(23 28 25 / 0.06);
+  --shadow-md: 0 2px 4px rgb(23 28 25 / 0.05), 0 6px 16px -6px rgb(23 28 25 / 0.12);
+  --shadow-lg: 0 10px 30px -10px rgb(23 28 25 / 0.22), 0 4px 10px -6px rgb(23 28 25 / 0.12);
   --ring: 0 0 0 1px var(--border);
 
   /* motion — escalas nomeadas para uso consistente com Framer Motion */
@@ -60,54 +62,84 @@
   --motion-fast: 140ms cubic-bezier(0.2, 0, 0, 1);
   --motion-slow: 420ms cubic-bezier(0.16, 1, 0.3, 1);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* tipografia — display com personalidade, corpo neutro, números tabulares */
   --font:
-    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    var(--font-body-face, ui-sans-serif), ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+    Roboto, sans-serif;
+  --font-display: var(--font-display-face, var(--font)), ui-sans-serif, system-ui, sans-serif;
+  --font-mono:
+    var(--font-mono-face, ui-monospace), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* textura de papel-razão (grade fina) — assinatura visual do hero */
+  --ledger-grid:
+    repeating-linear-gradient(
+      0deg,
+      color-mix(in srgb, var(--accent) 7%, transparent) 0 1px,
+      transparent 1px 22px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--accent) 7%, transparent) 0 1px,
+      transparent 1px 22px
+    );
 
   /* controles de formulário — altura única e seta de select por tema */
   --control-h: 40px;
-  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2363706a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   /* popups nativos (date picker, lista do select) seguem o tema */
   color-scheme: light;
 }
 
 [data-theme='dark'] {
-  --bg: #0f1115;
-  --surface: #171a21;
-  --surface-2: #1f232c;
-  --text: #e7e9ee;
-  --text-muted: #9aa1ad;
-  --border: #2a2f3a;
+  --bg: #0c110f;
+  --surface: #131916;
+  --surface-2: #1b2320;
+  --text: #e8ece9;
+  --text-muted: #93a09a;
+  --border: #27312c;
 
-  --accent: #5b8def;
-  --accent-2: #8b7df5;
-  --accent-contrast: #0f1115;
-  --accent-soft: #1d2b4a;
-  --brand-gradient: linear-gradient(135deg, #5b8def 0%, #8b7df5 100%);
-  --brand-glow: 0 0 0 1px rgb(91 141 239 / 0.18), 0 10px 40px -10px rgb(91 141 239 / 0.4);
+  --accent: #35c2ad;
+  --accent-2: #6bd9c8;
+  --accent-contrast: #06231e;
+  --accent-soft: #123c35;
+  --brand-gradient: linear-gradient(135deg, #35c2ad 0%, #1b8a79 100%);
+  --brand-glow: 0 0 0 1px rgb(53 194 173 / 0.2), 0 10px 40px -10px rgb(53 194 173 / 0.38);
 
-  --positive: #4ade80;
-  --positive-soft: #12301c;
-  --warning: #fbbf24;
-  --warning-soft: #362a10;
-  --danger: #f87171;
-  --danger-soft: #3a1414;
-  --info: #93b4f8;
-  --info-soft: #16233f;
+  --positive: #97cb64;
+  --positive-soft: #212f13;
+  --warning: #e8b45a;
+  --warning-soft: #35290f;
+  --danger: #ef7b72;
+  --danger-soft: #3a1512;
+  --info: #35c2ad;
+  --info-soft: #123c35;
 
-  --category-green: #4ade80;
-  --category-blue: #93b4f8;
-  --category-purple: #c4b5fd;
-  --category-orange: #fdba74;
-  --category-pink: #f9a8d4;
-  --category-yellow: #fde047;
-  --category-red: #f87171;
+  --category-green: #97cb64;
+  --category-blue: #86b4f0;
+  --category-purple: #bda5f2;
+  --category-orange: #eda05f;
+  --category-pink: #ef8fc0;
+  --category-yellow: #e3c65c;
+  --category-red: #ef7b72;
 
   --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 1px 3px rgb(0 0 0 / 0.5);
   --shadow-md: 0 2px 6px rgb(0 0 0 / 0.4), 0 8px 24px -8px rgb(0 0 0 / 0.55);
   --shadow-lg: 0 16px 40px -12px rgb(0 0 0 / 0.7), 0 6px 14px -8px rgb(0 0 0 / 0.5);
   --ring: 0 0 0 1px var(--border);
 
-  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239aa1ad' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  --ledger-grid:
+    repeating-linear-gradient(
+      0deg,
+      color-mix(in srgb, var(--accent) 9%, transparent) 0 1px,
+      transparent 1px 22px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--accent) 9%, transparent) 0 1px,
+      transparent 1px 22px
+    );
+
+  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2393a09a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   color-scheme: dark;
 }

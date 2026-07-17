@@ -3,11 +3,14 @@
 /** Backup (Fase 23/FR-031–033): export, import REPLACE com confirmação, backup manual. */
 import { useState } from 'react';
 import { Download, HardDriveUpload, ShieldCheck } from 'lucide-react';
+import { PageHeader } from '../../components/layout/PageHeader';
 import { Shell } from '../../components/layout/Shell';
 import { MotionCard, Stagger } from '../../components/motion';
 import { ApiError, apiRaw } from '../../lib/api-client';
+import { useI18n } from '../../lib/i18n';
 
 export default function BackupPage() {
+  const { t } = useI18n();
   const [file, setFile] = useState<File | null>(null);
   const [confirmed, setConfirmed] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -25,9 +28,9 @@ export default function BackupPage() {
       anchor.download = 'finances-export.zip';
       anchor.click();
       URL.revokeObjectURL(url);
-      setFeedback('Export gerado — o download começou.');
+      setFeedback(t('backup.exportDone'));
     } catch (error) {
-      setFeedback(error instanceof ApiError ? error.message : 'Erro no export');
+      setFeedback(error instanceof ApiError ? error.message : t('backup.exportError'));
     } finally {
       setBusy(false);
     }
@@ -42,11 +45,11 @@ export default function BackupPage() {
       form.append('file', file);
       form.append('strategy', 'REPLACE');
       await apiRaw('/backup/import', { method: 'POST', body: form });
-      setFeedback('Import concluído: seus dados foram SUBSTITUÍDOS pelo conteúdo do arquivo.');
+      setFeedback(t('backup.importDone'));
       setFile(null);
       setConfirmed(false);
     } catch (error) {
-      setFeedback(error instanceof ApiError ? error.message : 'Erro no import');
+      setFeedback(error instanceof ApiError ? error.message : t('backup.importError'));
     } finally {
       setBusy(false);
     }
@@ -58,9 +61,11 @@ export default function BackupPage() {
     try {
       const response = await apiRaw('/backup/run', { method: 'POST' });
       const metadata = (await response.json()) as { location: string; providerType: string };
-      setFeedback(`Backup gravado via ${metadata.providerType}: ${metadata.location}`);
+      setFeedback(
+        t('backup.runDone', { provider: metadata.providerType, location: metadata.location }),
+      );
     } catch (error) {
-      setFeedback(error instanceof ApiError ? error.message : 'Erro no backup');
+      setFeedback(error instanceof ApiError ? error.message : t('backup.runError'));
     } finally {
       setBusy(false);
     }
@@ -68,29 +73,36 @@ export default function BackupPage() {
 
   return (
     <Shell>
+      <PageHeader
+        eyebrow={t('backup.eyebrow')}
+        title={t('backup.pageTitle')}
+        subtitle={t('backup.pageSubtitle')}
+      />
       <Stagger className="grid">
-        <MotionCard interactive={false} aria-label="Exportar dados">
-          <p style={{ margin: '0 0 4px', fontWeight: 600 }}>Exportar meus dados</p>
+        <MotionCard interactive={false} aria-label={t('backup.exportAria')}>
+          <p className="card-title" style={{ marginBottom: 4 }}>
+            {t('backup.exportTitle')}
+          </p>
           <p className="muted" style={{ margin: '0 0 12px', fontSize: 13.5 }}>
-            ZIP com transações, categorias, planejamentos, recorrências e preferências. Nunca inclui
-            senha ou dados sensíveis. Seus dados são seus (Filosofia #8).
+            {t('backup.exportText')}
           </p>
           <button type="button" className="btn btn-primary" onClick={exportZip} disabled={busy}>
-            <Download size={15} aria-hidden /> Exportar ZIP
+            <Download size={15} aria-hidden /> {t('backup.exportBtn')}
           </button>
         </MotionCard>
 
-        <MotionCard interactive={false} aria-label="Importar dados">
-          <p style={{ margin: '0 0 4px', fontWeight: 600 }}>Importar (restaurar)</p>
+        <MotionCard interactive={false} aria-label={t('backup.importAria')}>
+          <p className="card-title" style={{ marginBottom: 4 }}>
+            {t('backup.importTitle')}
+          </p>
           <p className="muted" style={{ margin: '0 0 12px', fontSize: 13.5 }}>
-            Estratégia REPLACE: o conteúdo do arquivo <strong>substitui integralmente</strong> os
-            dados atuais. Arquivo inválido é rejeitado sem tocar em nada.
+            {t('backup.importText')}
           </p>
           <div className="grid" style={{ gap: 10, justifyItems: 'start' }}>
             <input
               type="file"
               accept=".zip,application/zip"
-              aria-label="Arquivo de backup"
+              aria-label={t('backup.fileAria')}
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
             />
             <label className="row" style={{ gap: 6, fontSize: 13.5 }}>
@@ -99,7 +111,7 @@ export default function BackupPage() {
                 checked={confirmed}
                 onChange={(e) => setConfirmed(e.target.checked)}
               />
-              Entendo que meus dados atuais serão substituídos
+              {t('backup.importCheck')}
             </label>
             <button
               type="button"
@@ -107,19 +119,20 @@ export default function BackupPage() {
               onClick={importZip}
               disabled={!file || !confirmed || busy}
             >
-              <HardDriveUpload size={15} aria-hidden /> Importar e substituir
+              <HardDriveUpload size={15} aria-hidden /> {t('backup.importBtn')}
             </button>
           </div>
         </MotionCard>
 
-        <MotionCard interactive={false} aria-label="Backup manual">
-          <p style={{ margin: '0 0 4px', fontWeight: 600 }}>Backup agora</p>
+        <MotionCard interactive={false} aria-label={t('backup.runAria')}>
+          <p className="card-title" style={{ marginBottom: 4 }}>
+            {t('backup.runTitle')}
+          </p>
           <p className="muted" style={{ margin: '0 0 12px', fontSize: 13.5 }}>
-            Grava um artefato pelo provedor configurado (Local em dev, Object Storage em produção) e
-            registra os metadados.
+            {t('backup.runText')}
           </p>
           <button type="button" className="btn" onClick={runBackup} disabled={busy}>
-            <ShieldCheck size={15} aria-hidden /> Executar backup
+            <ShieldCheck size={15} aria-hidden /> {t('backup.runBtn')}
           </button>
         </MotionCard>
 

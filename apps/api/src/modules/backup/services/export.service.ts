@@ -15,6 +15,7 @@ export const EXPORTED_COLLECTIONS = [
   { model: MODELS.MonthlyPlan, file: `${COLLECTIONS.monthlyPlans}.json` },
   { model: MODELS.RecurringRule, file: `${COLLECTIONS.recurringRules}.json` },
   { model: MODELS.Settings, file: `${COLLECTIONS.settings}.json` },
+  { model: MODELS.WishlistItem, file: `${COLLECTIONS.wishlistItems}.json` }, // ADR-018
 ] as const;
 
 export interface ExportArtifact {
@@ -31,6 +32,8 @@ export class ExportService {
     @InjectModel(MODELS.MonthlyPlan) private readonly plans: Model<Record<string, unknown>>,
     @InjectModel(MODELS.RecurringRule) private readonly rules: Model<Record<string, unknown>>,
     @InjectModel(MODELS.Settings) private readonly settings: Model<Record<string, unknown>>,
+    @InjectModel(MODELS.WishlistItem)
+    private readonly wishlistItems: Model<Record<string, unknown>>,
   ) {}
 
   /** ZIP com um JSON por coleção + metadata. Inclui soft-deletados (fidelidade total). */
@@ -43,6 +46,7 @@ export class ExportService {
       [MODELS.MonthlyPlan]: this.plans,
       [MODELS.RecurringRule]: this.rules,
       [MODELS.Settings]: this.settings,
+      [MODELS.WishlistItem]: this.wishlistItems,
     };
 
     for (const { model, file } of EXPORTED_COLLECTIONS) {

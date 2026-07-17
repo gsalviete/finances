@@ -138,7 +138,11 @@ Snapshot de intenção. `monthlyPlanItems` é um **array embutido**.
 
 > **Convenção de enums:** todos os enums de domínio (`type`, `status`, `origin`, `kind`, `recurrenceType`) são **MAIÚSCULOS**. O único enum em minúsculas é `theme` (`light`/`dark`/`system`), intencionalmente, para casar com a convenção do `next-themes` no frontend. A seleção do `BackupProvider` **não** é um campo de settings — é definida por configuração de ambiente (dev = Local, prod = Object Storage); a coleção `backups` apenas registra em `providerType` qual foi usado.
 
-### 2.8 `backups`
+### 2.8 `wishlistItems` (ADR-018)
+
+Isolada do núcleo financeiro — nunca entra em saldo, plano ou dashboard. Campos: `userId`, `url`, `name`, `priceCents` (centavos inteiros \| null), `currency` (ISO 4217), `imageUrl` (\| null), `priority` (`HIGH`\|`MEDIUM`\|`LOW`), `scrapeStatus` (`OK`\|`PARTIAL`\|`FAILED`), `scrapedAt` (\| null), soft delete e timestamps. Índice: `{ userId: 1, deletedAt: 1, createdAt: -1 }`. Detalhes e racional: `ADR-018-WISHLIST.md`.
+
+### 2.9 `backups`
 
 Apenas **metadados**. Os artefatos residem no destino gerenciado pelo `BackupProvider` (Local ou Object Storage), nunca presos ao filesystem efêmero. Campos: `userId`, `location`, `providerType`, `sizeBytes`, `checksum`, `createdAt`.
 

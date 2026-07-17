@@ -4,6 +4,7 @@
 import { useMemo, useState } from 'react';
 import { systemClock, type Transaction } from '@finances/shared';
 import { Check, Plus, Trash2, XCircle } from 'lucide-react';
+import { PageHeader } from '../../components/layout/PageHeader';
 import { Shell } from '../../components/layout/Shell';
 import { SegmentedControl } from '../../components/ui/SegmentedControl';
 import { AnimatePresence, MotionCard, Stagger, motion } from '../../components/motion';
@@ -13,21 +14,11 @@ import {
   useTransactionsPage,
 } from '../../features/queries';
 import { ApiError } from '../../lib/api-client';
-import {
-  dateInputToIso,
-  formatCents,
-  formatDate,
-  parseDecimalToCents,
-  toDateInputValue,
-} from '../../lib/format';
-
-const STATUS_LABEL: Record<string, string> = {
-  CONFIRMED: 'Confirmada',
-  FORECAST: 'Prevista',
-  CANCELLED: 'Cancelada',
-};
+import { dateInputToIso, parseDecimalToCents } from '../../lib/format';
+import { useI18n } from '../../lib/i18n';
 
 export default function TransactionsPage() {
+  const { t, fmtCents, fmtDate, dateInputValue, currency } = useI18n();
   const [cursor, setCursor] = useState<string | null>(null);
   const [pages, setPages] = useState<Transaction[][]>([]);
   const [statusFilter, setStatusFilter] = useState('');
@@ -40,7 +31,7 @@ export default function TransactionsPage() {
   const [type, setType] = useState<'EXPENSE' | 'INCOME'>('EXPENSE');
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
-  const [date, setDate] = useState(() => toDateInputValue(systemClock.now()));
+  const [date, setDate] = useState(() => dateInputValue(systemClock.now()));
   const [categoryId, setCategoryId] = useState('');
   const [forecast, setForecast] = useState(false);
   const [installments, setInstallments] = useState(1);
@@ -78,7 +69,7 @@ export default function TransactionsPage() {
           date: new Date(dateInputToIso(date)),
           categoryId,
         });
-        setFeedback(`Compra registrada em ${installments}x com soma exata.`);
+        setFeedback(t('tx.createdInstallments', { n: installments }));
       } else {
         await mutations.create.mutateAsync({
           type,
@@ -88,13 +79,17 @@ export default function TransactionsPage() {
           date: new Date(dateInputToIso(date)),
           categoryId,
         });
-        setFeedback('Movimentação registrada.');
+        setFeedback(t('tx.created'));
       }
       setAmount('');
       setDescription('');
       resetList();
     } catch (error) {
-      setFeedback(error instanceof ApiError ? error.message : 'Valor inválido (use 12,34)');
+      setFeedback(
+        error instanceof ApiError
+          ? error.message
+          : t('tx.invalidAmount', { example: t('tx.amountPlaceholder') }),
+      );
     }
   };
 
@@ -105,46 +100,52 @@ export default function TransactionsPage() {
 
   const remove = async (transaction: Transaction) => {
     // FR-019: exclusão sempre com confirmação
-    if (!window.confirm(`Excluir "${transaction.description || 'movimentação'}"?`)) return;
+    const name = transaction.description || t('tx.fallbackName');
+    if (!window.confirm(t('tx.deleteConfirm', { name }))) return;
     await mutations.remove.mutateAsync(transaction.id);
     resetList();
   };
 
   return (
     <Shell>
+      <PageHeader
+        eyebrow={t('tx.eyebrow')}
+        title={t('tx.pageTitle')}
+        subtitle={t('tx.pageSubtitle')}
+      />
       <Stagger className="grid">
-        <MotionCard interactive={false} aria-label="Nova movimentação">
-          <p style={{ margin: '0 0 12px', fontWeight: 600 }}>Registrar movimentação</p>
+        <MotionCard interactive={false} aria-label={t('tx.newAria')}>
+          <p className="card-title">{t('tx.formTitle')}</p>
           <form
             onSubmit={submit}
             className="grid"
             style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12 }}
           >
             <div className="field">
-              <label htmlFor="tx-type">Tipo</label>
+              <label htmlFor="tx-type">{t('tx.type')}</label>
               <select
                 id="tx-type"
                 value={type}
                 onChange={(e) => setType(e.target.value as 'EXPENSE' | 'INCOME')}
                 disabled={installments > 1}
               >
-                <option value="EXPENSE">Despesa</option>
-                <option value="INCOME">Receita</option>
+                <option value="EXPENSE">{t('tx.expense')}</option>
+                <option value="INCOME">{t('tx.income')}</option>
               </select>
             </div>
             <div className="field">
-              <label htmlFor="tx-amount">Valor (R$)</label>
+              <label htmlFor="tx-amount">{t('tx.amount', { currency })}</label>
               <input
                 id="tx-amount"
                 inputMode="decimal"
-                placeholder="123,45"
+                placeholder={t('tx.amountPlaceholder')}
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 required
               />
             </div>
             <div className="field">
-              <label htmlFor="tx-date">Data</label>
+              <label htmlFor="tx-date">{t('tx.date')}</label>
               <input
                 id="tx-date"
                 type="date"
@@ -154,14 +155,14 @@ export default function TransactionsPage() {
               />
             </div>
             <div className="field">
-              <label htmlFor="tx-category">Categoria</label>
+              <label htmlFor="tx-category">{t('tx.category')}</label>
               <select
                 id="tx-category"
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
                 required
               >
-                <option value="">Selecione…</option>
+                <option value="">{t('tx.select')}</option>
                 {(categories ?? []).map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}
@@ -170,16 +171,16 @@ export default function TransactionsPage() {
               </select>
             </div>
             <div className="field">
-              <label htmlFor="tx-desc">Descrição</label>
+              <label htmlFor="tx-desc">{t('tx.description')}</label>
               <input
                 id="tx-desc"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="ex.: mercado"
+                placeholder={t('tx.descPlaceholder')}
               />
             </div>
             <div className="field">
-              <label htmlFor="tx-installments">Parcelas</label>
+              <label htmlFor="tx-installments">{t('tx.installments')}</label>
               <select
                 id="tx-installments"
                 value={installments}
@@ -187,7 +188,7 @@ export default function TransactionsPage() {
               >
                 {[1, 2, 3, 4, 5, 6, 10, 12].map((n) => (
                   <option key={n} value={n}>
-                    {n === 1 ? 'À vista' : `${n}x`}
+                    {n === 1 ? t('tx.cash') : `${n}x`}
                   </option>
                 ))}
               </select>
@@ -200,7 +201,7 @@ export default function TransactionsPage() {
                   onChange={(e) => setForecast(e.target.checked)}
                   disabled={installments > 1}
                 />
-                Prevista (ainda não ocorreu)
+                {t('tx.forecast')}
               </label>
             </div>
             <div className="field" style={{ justifyContent: 'end' }}>
@@ -209,7 +210,7 @@ export default function TransactionsPage() {
                 className="btn btn-primary"
                 disabled={mutations.create.isPending || mutations.createInstallments.isPending}
               >
-                <Plus size={15} aria-hidden /> Registrar
+                <Plus size={15} aria-hidden /> {t('tx.register')}
               </button>
             </div>
           </form>
@@ -220,99 +221,101 @@ export default function TransactionsPage() {
           )}
         </MotionCard>
 
-        <MotionCard interactive={false} aria-label="Lista de transações">
+        <MotionCard interactive={false} aria-label={t('tx.listAria')}>
           <div
             className="row"
             style={{ justifyContent: 'space-between', flexWrap: 'wrap', marginBottom: 8 }}
           >
-            <p style={{ margin: 0, fontWeight: 600 }}>Movimentações</p>
+            <p className="card-title" style={{ margin: 0 }}>
+              {t('tx.listTitle')}
+            </p>
             <SegmentedControl
-              ariaLabel="Filtrar por status"
+              ariaLabel={t('tx.filterAria')}
               value={statusFilter}
               onChange={(value) => {
                 setStatusFilter(value);
                 resetList();
               }}
               options={[
-                { value: '', label: 'Todas' },
-                { value: 'CONFIRMED', label: 'Confirmadas' },
-                { value: 'FORECAST', label: 'Previstas' },
-                { value: 'CANCELLED', label: 'Canceladas' },
+                { value: '', label: t('tx.filterAll') },
+                { value: 'CONFIRMED', label: t('tx.filterConfirmed') },
+                { value: 'FORECAST', label: t('tx.filterForecast') },
+                { value: 'CANCELLED', label: t('tx.filterCancelled') },
               ]}
             />
           </div>
           {isLoading && allItems.length === 0 ? (
             <div className="skeleton" style={{ height: 120 }} role="status" />
           ) : allItems.length === 0 ? (
-            <p className="empty">Nenhuma movimentação encontrada.</p>
+            <p className="empty">{t('tx.empty')}</p>
           ) : (
             <table className="table">
               <thead>
                 <tr>
-                  <th>Data</th>
-                  <th>Descrição</th>
-                  <th>Status</th>
-                  <th style={{ textAlign: 'right' }}>Valor</th>
-                  <th aria-label="Ações" />
+                  <th>{t('tx.thDate')}</th>
+                  <th>{t('tx.thDescription')}</th>
+                  <th>{t('tx.thStatus')}</th>
+                  <th style={{ textAlign: 'right' }}>{t('tx.thAmount')}</th>
+                  <th aria-label={t('tx.thActions')} />
                 </tr>
               </thead>
               <tbody>
                 <AnimatePresence initial={false}>
-                  {allItems.map((t) => (
+                  {allItems.map((tx) => (
                     <motion.tr
-                      key={t.id}
+                      key={tx.id}
                       layout
                       initial={{ opacity: 0, y: 6 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, height: 0 }}
                       transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
                     >
-                      <td>{formatDate(t.date)}</td>
+                      <td>{fmtDate(tx.date)}</td>
                       <td>
-                        {t.description || <span className="muted">—</span>}
-                        {t.installmentNumber !== null && (
+                        {tx.description || <span className="muted">—</span>}
+                        {tx.installmentNumber !== null && (
                           <span className="muted" style={{ fontSize: 12 }}>
                             {' '}
-                            ({t.installmentNumber}/{t.installmentTotal})
+                            ({tx.installmentNumber}/{tx.installmentTotal})
                           </span>
                         )}
                       </td>
                       <td>
                         <span
-                          className={`badge ${t.status === 'CONFIRMED' ? 'badge-positive' : t.status === 'FORECAST' ? 'badge-info' : 'badge-neutral'}`}
+                          className={`badge ${tx.status === 'CONFIRMED' ? 'badge-positive' : tx.status === 'FORECAST' ? 'badge-info' : 'badge-neutral'}`}
                         >
-                          {STATUS_LABEL[t.status]}
+                          {t(`status.${tx.status}`)}
                         </span>
                       </td>
                       <td
                         className="mono"
                         style={{
                           textAlign: 'right',
-                          color: t.type === 'INCOME' ? 'var(--positive)' : 'var(--text)',
+                          color: tx.type === 'INCOME' ? 'var(--positive)' : 'var(--text)',
                         }}
                       >
-                        {t.type === 'INCOME' ? '+' : '−'}
-                        {formatCents(t.amountCents)}
+                        {tx.type === 'INCOME' ? '+' : '−'}
+                        {fmtCents(tx.amountCents)}
                       </td>
                       <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
-                        {t.status === 'FORECAST' && (
+                        {tx.status === 'FORECAST' && (
                           <button
                             type="button"
                             className="btn"
-                            title="Confirmar"
-                            aria-label="Confirmar"
-                            onClick={() => patchStatus(t.id, 'CONFIRMED')}
+                            title={t('tx.confirm')}
+                            aria-label={t('tx.confirm')}
+                            onClick={() => patchStatus(tx.id, 'CONFIRMED')}
                           >
                             <Check size={14} aria-hidden />
                           </button>
                         )}{' '}
-                        {t.status !== 'CANCELLED' && (
+                        {tx.status !== 'CANCELLED' && (
                           <button
                             type="button"
                             className="btn"
-                            title="Cancelar"
-                            aria-label="Cancelar"
-                            onClick={() => patchStatus(t.id, 'CANCELLED')}
+                            title={t('tx.cancel')}
+                            aria-label={t('tx.cancel')}
+                            onClick={() => patchStatus(tx.id, 'CANCELLED')}
                           >
                             <XCircle size={14} aria-hidden />
                           </button>
@@ -320,9 +323,9 @@ export default function TransactionsPage() {
                         <button
                           type="button"
                           className="btn btn-danger"
-                          title="Excluir"
-                          aria-label="Excluir"
-                          onClick={() => remove(t)}
+                          title={t('tx.delete')}
+                          aria-label={t('tx.delete')}
+                          onClick={() => remove(tx)}
                         >
                           <Trash2 size={14} aria-hidden />
                         </button>
@@ -343,7 +346,7 @@ export default function TransactionsPage() {
                   setCursor(data.nextCursor);
                 }}
               >
-                Carregar mais
+                {t('tx.loadMore')}
               </button>
             </div>
           )}

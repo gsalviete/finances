@@ -168,6 +168,15 @@ Escopo: **apenas** fases de implementação. Não redefine produto nem arquitetu
 
 ---
 
+## Bloco I — Pós-V1 (fase 26)
+
+### Fase 26 — Wishlist (ADR-018)
+**Objetivo:** coleção `wishlistItems` (schema Zod-first em `packages/shared`), módulo NestJS `wishlist` (CRUD + `POST /:id/refresh`), `ProductMetadataService` (JSON-LD → OpenGraph → `<title>`, com SSRF guard, timeout e limite de payload), página `/wishlist` no Next.js (cadastro por URL, cards com imagem/nome/preço/prioridade, edição manual, refresh por item).
+**Aceite:** falha de scraping nunca bloqueia o cadastro (item salvo com `scrapeStatus` e edição manual); preço sempre em centavos inteiros; URL privada/loopback rejeitada; wishlist não aparece em nenhum cálculo financeiro; backup export/import inclui a coleção; UI segue Design System, i18n e temas.
+**Verde:** unit (parser de metadados com fixtures reais de e-commerce, conversão de preço, SSRF guard) + integração do CRUD ✓ · lint/typecheck/build/docker ✓.
+
+---
+
 ## Mapa de dependências entre fases
 
 ```

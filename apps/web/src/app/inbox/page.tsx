@@ -5,13 +5,16 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { DraftTransaction } from '@finances/shared';
 import { Check, X } from 'lucide-react';
+import { PageHeader } from '../../components/layout/PageHeader';
 import { Shell } from '../../components/layout/Shell';
 import { AnimatePresence, MotionCard, Stagger, StaggerItem } from '../../components/motion';
 import { useCategories } from '../../features/queries';
 import { api } from '../../lib/api-client';
-import { centsToDecimalInput, formatCents } from '../../lib/format';
+import { centsToDecimalInput } from '../../lib/format';
+import { useI18n } from '../../lib/i18n';
 
 export default function InboxPage() {
+  const { t, fmtCents } = useI18n();
   const client = useQueryClient();
   const { data: drafts, isLoading } = useQuery({
     queryKey: ['inbox'],
@@ -43,16 +46,19 @@ export default function InboxPage() {
 
   return (
     <Shell>
-      <MotionCard interactive={false} aria-label="Inbox de automação">
-        <p style={{ margin: '0 0 4px', fontWeight: 600 }}>Inbox</p>
+      <PageHeader
+        eyebrow={t('inbox.eyebrow')}
+        title={t('inbox.pageTitle')}
+        subtitle={t('inbox.pageSubtitle')}
+      />
+      <MotionCard interactive={false} aria-label={t('inbox.aria')}>
         <p className="muted" style={{ margin: '0 0 12px', fontSize: 13.5 }}>
-          Notificações capturadas pelo Atalho aguardando sua revisão. Nenhuma entra no orçamento sem
-          confirmação (Constitution #6).
+          {t('inbox.text')}
         </p>
         {isLoading ? (
           <div className="skeleton" style={{ height: 100 }} role="status" />
         ) : (drafts ?? []).length === 0 ? (
-          <p className="empty">Inbox vazia — nenhuma notificação pendente.</p>
+          <p className="empty">{t('inbox.empty')}</p>
         ) : (
           <Stagger className="grid" style={{ gap: 12 }}>
             <AnimatePresence initial={false}>
@@ -72,13 +78,13 @@ export default function InboxPage() {
                     </p>
                     <div className="row" style={{ flexWrap: 'wrap', marginBottom: 8 }}>
                       <span className={`badge ${lowConfidence ? 'badge-warning' : 'badge-info'}`}>
-                        confiança {Math.round(draft.confidence * 100)}%
-                        {lowConfidence ? ' — revisar' : ''}
+                        {t('inbox.confidence', { p: Math.round(draft.confidence * 100) })}
+                        {lowConfidence ? t('inbox.review') : ''}
                       </span>
                       {amount !== null ? (
-                        <span className="mono">{formatCents(amount)}</span>
+                        <span className="mono">{fmtCents(amount)}</span>
                       ) : (
-                        <span className="badge badge-danger">valor não identificado</span>
+                        <span className="badge badge-danger">{t('inbox.noAmount')}</span>
                       )}
                       <span className="muted">
                         {(draft.parsedData as { description?: string }).description ?? ''}
@@ -86,13 +92,13 @@ export default function InboxPage() {
                     </div>
                     <div className="row" style={{ flexWrap: 'wrap' }}>
                       <select
-                        aria-label="Categoria para confirmar"
+                        aria-label={t('inbox.categoryAria')}
                         value={categoryByDraft[draft.id] ?? ''}
                         onChange={(e) =>
                           setCategoryByDraft({ ...categoryByDraft, [draft.id]: e.target.value })
                         }
                       >
-                        <option value="">Categoria…</option>
+                        <option value="">{t('inbox.categoryPlaceholder')}</option>
                         {(categories ?? []).map((c) => (
                           <option key={c.id} value={c.id}>
                             {c.name}
@@ -112,7 +118,7 @@ export default function InboxPage() {
                           })
                         }
                       >
-                        <Check size={14} aria-hidden /> Confirmar
+                        <Check size={14} aria-hidden /> {t('inbox.confirm')}
                       </button>
                       <button
                         type="button"
@@ -120,13 +126,12 @@ export default function InboxPage() {
                         disabled={ignore.isPending}
                         onClick={() => ignore.mutate(draft.id)}
                       >
-                        <X size={14} aria-hidden /> Ignorar
+                        <X size={14} aria-hidden /> {t('inbox.ignore')}
                       </button>
                     </div>
                     {amount !== null && (
                       <p className="muted" style={{ margin: '8px 0 0', fontSize: 12 }}>
-                        Será registrada como despesa confirmada de{' '}
-                        <span className="mono">{centsToDecimalInput(amount)}</span>
+                        {t('inbox.willRegister', { v: centsToDecimalInput(amount) })}
                       </p>
                     )}
                   </StaggerItem>

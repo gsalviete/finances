@@ -17,6 +17,8 @@ import {
 
 /** Curva padrão de saída — leitura suave e "elástica" no fim. */
 const EASE_OUT = [0.16, 1, 0.3, 1] as const;
+/** Mola padrão para elementos que "assentam" (pílulas, hover, layout). */
+export const SPRING = { type: 'spring', stiffness: 420, damping: 34 } as const;
 
 /* ---------------- entrada de página ---------------- */
 export function PageTransition({
@@ -140,10 +142,11 @@ export function CountUp({
     return () => controls.stop();
   }, [value, duration, reduce, mv]);
 
+  // valor final sempre exposto à árvore de acessibilidade; a contagem é só visual
   return (
-    <motion.span className={className} style={style}>
-      {text}
-    </motion.span>
+    <span className={className} style={style} aria-label={format(value)}>
+      <motion.span aria-hidden>{text}</motion.span>
+    </span>
   );
 }
 
@@ -170,6 +173,63 @@ export function AnimatedBar({
         animate={{ width: `${target}%` }}
         transition={{ duration: 0.8, ease: EASE_OUT, delay }}
       />
+    </div>
+  );
+}
+
+/* ---------------- anel de progresso (mês no hero) ---------------- */
+export function ProgressRing({
+  progress,
+  size = 104,
+  stroke = 8,
+  color = 'var(--accent)',
+  label,
+  value,
+  caption,
+}: {
+  /** 0..1 */
+  progress: number;
+  size?: number;
+  stroke?: number;
+  color?: string;
+  label: string;
+  value: string;
+  caption?: string;
+}) {
+  const reduce = useReducedMotion();
+  const radius = (size - stroke) / 2;
+  const clamped = Math.max(0.02, Math.min(1, progress));
+  return (
+    <div className="ring-wrap" style={{ width: size, height: size }} role="img" aria-label={label}>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden>
+        <circle
+          className="ring-track"
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          strokeWidth={stroke}
+        />
+        <motion.circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke={color}
+          strokeWidth={stroke}
+          strokeLinecap="round"
+          transform={`rotate(-90 ${size / 2} ${size / 2})`}
+          initial={reduce ? false : { pathLength: 0 }}
+          animate={{ pathLength: clamped }}
+          transition={{ duration: 1.1, ease: EASE_OUT, delay: 0.15 }}
+        />
+      </svg>
+      <div className="ring-center" aria-hidden>
+        <div>
+          <div className="ring-value">{value}</div>
+          {caption && <div className="ring-caption">{caption}</div>}
+        </div>
+      </div>
     </div>
   );
 }

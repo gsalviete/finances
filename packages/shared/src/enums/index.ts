@@ -51,6 +51,15 @@ export const PACING_STATUSES = ['COMFORTABLE', 'ON_TRACK', 'ATTENTION', 'CRITICA
 export const pacingStatusSchema = z.enum(PACING_STATUSES);
 export type PacingStatus = z.infer<typeof pacingStatusSchema>;
 
+/** Wishlist (ADR-018): prioridade do desejo e resultado da última extração de metadados. */
+export const WISHLIST_PRIORITIES = ['HIGH', 'MEDIUM', 'LOW'] as const;
+export const wishlistPrioritySchema = z.enum(WISHLIST_PRIORITIES);
+export type WishlistPriority = z.infer<typeof wishlistPrioritySchema>;
+
+export const WISHLIST_SCRAPE_STATUSES = ['OK', 'PARTIAL', 'FAILED'] as const;
+export const wishlistScrapeStatusSchema = z.enum(WISHLIST_SCRAPE_STATUSES);
+export type WishlistScrapeStatus = z.infer<typeof wishlistScrapeStatusSchema>;
+
 /** Exceção intencional em minúsculas (DATABASE §2.7): casa com next-themes no frontend. */
 export const THEMES = ['light', 'dark', 'system'] as const;
 export const themeSchema = z.enum(THEMES);

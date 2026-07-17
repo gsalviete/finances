@@ -10,3 +10,4 @@ export * from './auth';
 export * from './backup';
 export * from './dashboard';
 export * from './automation';
+export * from './wishlist';

@@ -27,7 +27,8 @@ const dash: DashboardResponse = {
 describe('Home — cards das lentes', () => {
   it('HeroCard exibe o Saldo Projetado dominante e o gasto diário', () => {
     render(<HeroCard dash={dash} />);
-    expect(screen.getByText(/1\.200,00/)).toBeInTheDocument();
+    // CountUp anima o texto; o valor final vive no aria-label (acessível já no 1º frame)
+    expect(screen.getByLabelText(/1\.200,00/)).toBeInTheDocument();
     expect(screen.getByText(/54,54/)).toBeInTheDocument();
     expect(screen.getByText(/22 dia\(s\) restante/)).toBeInTheDocument();
   });

@@ -3,10 +3,12 @@
 /** Categorias (FR-021–024): customizáveis, arquiváveis, nunca perdem histórico. */
 import { useState } from 'react';
 import { Archive, ArchiveRestore, Plus, Trash2 } from 'lucide-react';
+import { PageHeader } from '../../components/layout/PageHeader';
 import { Shell } from '../../components/layout/Shell';
 import { AnimatePresence, MotionCard, Stagger, StaggerItem } from '../../components/motion';
 import { useCategories, useCategoryMutations } from '../../features/queries';
 import { ApiError } from '../../lib/api-client';
+import { useI18n, type MessageKey } from '../../lib/i18n';
 
 const COLOR_TOKENS = [
   'category-green',
@@ -19,6 +21,7 @@ const COLOR_TOKENS = [
 ];
 
 export default function CategoriesPage() {
+  const { t } = useI18n();
   const [showArchived, setShowArchived] = useState(false);
   const { data, isLoading } = useCategories(showArchived);
   const { create, update, remove } = useCategoryMutations();
@@ -32,31 +35,36 @@ export default function CategoriesPage() {
     try {
       await create.mutateAsync({ name, icon: 'tag', color });
       setName('');
-      setFeedback('Categoria criada.');
+      setFeedback(t('cat.created'));
     } catch (error) {
-      setFeedback(error instanceof ApiError ? error.message : 'Erro ao criar');
+      setFeedback(error instanceof ApiError ? error.message : t('cat.createError'));
     }
   };
 
   const removeCategory = async (id: string, categoryName: string) => {
-    if (!window.confirm(`Excluir a categoria "${categoryName}"?`)) return;
+    if (!window.confirm(t('cat.deleteConfirm', { name: categoryName }))) return;
     try {
       await remove.mutateAsync(id);
-      setFeedback('Categoria excluída (soft delete).');
+      setFeedback(t('cat.deleted'));
     } catch (error) {
       // ADR-016: em uso → oriente a arquivar
-      setFeedback(error instanceof ApiError ? error.message : 'Erro ao excluir');
+      setFeedback(error instanceof ApiError ? error.message : t('cat.deleteError'));
     }
   };
 
   return (
     <Shell>
+      <PageHeader
+        eyebrow={t('cat.eyebrow')}
+        title={t('cat.pageTitle')}
+        subtitle={t('cat.pageSubtitle')}
+      />
       <Stagger className="grid">
-        <MotionCard interactive={false} aria-label="Nova categoria">
-          <p style={{ margin: '0 0 12px', fontWeight: 600 }}>Nova categoria</p>
+        <MotionCard interactive={false} aria-label={t('cat.newAria')}>
+          <p className="card-title">{t('cat.newTitle')}</p>
           <form onSubmit={submit} className="row" style={{ flexWrap: 'wrap' }}>
             <div className="field" style={{ flex: 1, minWidth: 160 }}>
-              <label htmlFor="cat-name">Nome</label>
+              <label htmlFor="cat-name">{t('cat.name')}</label>
               <input
                 id="cat-name"
                 value={name}
@@ -66,18 +74,18 @@ export default function CategoriesPage() {
               />
             </div>
             <div className="field">
-              <label htmlFor="cat-color">Cor</label>
+              <label htmlFor="cat-color">{t('cat.color')}</label>
               <select id="cat-color" value={color} onChange={(e) => setColor(e.target.value)}>
                 {COLOR_TOKENS.map((token) => (
                   <option key={token} value={token}>
-                    {token.replace('category-', '')}
+                    {t(token.replace('category-', 'color.') as MessageKey)}
                   </option>
                 ))}
               </select>
             </div>
             <div className="field" style={{ justifyContent: 'end' }}>
               <button type="submit" className="btn btn-primary" disabled={create.isPending}>
-                <Plus size={15} aria-hidden /> Criar
+                <Plus size={15} aria-hidden /> {t('cat.create')}
               </button>
             </div>
           </form>
@@ -88,22 +96,24 @@ export default function CategoriesPage() {
           )}
         </MotionCard>
 
-        <MotionCard interactive={false} aria-label="Lista de categorias">
+        <MotionCard interactive={false} aria-label={t('cat.listAria')}>
           <div className="row" style={{ justifyContent: 'space-between', marginBottom: 8 }}>
-            <p style={{ margin: 0, fontWeight: 600 }}>Categorias</p>
+            <p className="card-title" style={{ margin: 0 }}>
+              {t('cat.listTitle')}
+            </p>
             <label className="row" style={{ gap: 6, fontSize: 13.5 }}>
               <input
                 type="checkbox"
                 checked={showArchived}
                 onChange={(e) => setShowArchived(e.target.checked)}
               />
-              Mostrar arquivadas
+              {t('cat.showArchived')}
             </label>
           </div>
           {isLoading ? (
             <div className="skeleton" style={{ height: 100 }} role="status" />
           ) : (data ?? []).length === 0 ? (
-            <p className="empty">Nenhuma categoria — crie a primeira acima.</p>
+            <p className="empty">{t('cat.empty')}</p>
           ) : (
             <Stagger className="grid" style={{ gap: 8 }}>
               <AnimatePresence initial={false}>
@@ -126,17 +136,19 @@ export default function CategoriesPage() {
                         }}
                       />
                       {category.name}
-                      {category.archived && <span className="badge badge-neutral">arquivada</span>}
+                      {category.archived && (
+                        <span className="badge badge-neutral">{t('cat.archivedBadge')}</span>
+                      )}
                       {category.expiresAt !== null && (
-                        <span className="badge badge-warning">temporária</span>
+                        <span className="badge badge-warning">{t('cat.temporary')}</span>
                       )}
                     </span>
                     <span className="row">
                       <button
                         type="button"
                         className="btn"
-                        aria-label={category.archived ? 'Restaurar' : 'Arquivar'}
-                        title={category.archived ? 'Restaurar' : 'Arquivar'}
+                        aria-label={category.archived ? t('cat.restore') : t('cat.archive')}
+                        title={category.archived ? t('cat.restore') : t('cat.archive')}
                         onClick={() =>
                           update.mutate({
                             id: category.id,
@@ -153,8 +165,8 @@ export default function CategoriesPage() {
                       <button
                         type="button"
                         className="btn btn-danger"
-                        aria-label="Excluir"
-                        title="Excluir"
+                        aria-label={t('cat.delete')}
+                        title={t('cat.delete')}
                         onClick={() => removeCategory(category.id, category.name)}
                       >
                         <Trash2 size={14} aria-hidden />

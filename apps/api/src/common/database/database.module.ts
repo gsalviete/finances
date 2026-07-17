@@ -11,6 +11,7 @@ import { recurringRuleMongooseSchema } from './schemas/recurring-rule.mongoose';
 import { settingsMongooseSchema } from './schemas/settings.mongoose';
 import { transactionMongooseSchema } from './schemas/transaction.mongoose';
 import { userMongooseSchema } from './schemas/user.mongoose';
+import { wishlistItemMongooseSchema } from './schemas/wishlist-item.mongoose';
 
 /** Registro central: todas as coleções do DATABASE §2, nomes físicos exatos. */
 export const MODEL_DEFINITIONS = [
@@ -38,6 +39,11 @@ export const MODEL_DEFINITIONS = [
   },
   { name: MODELS.Settings, schema: settingsMongooseSchema, collection: COLLECTIONS.settings },
   { name: MODELS.Backup, schema: backupMongooseSchema, collection: COLLECTIONS.backups },
+  {
+    name: MODELS.WishlistItem,
+    schema: wishlistItemMongooseSchema,
+    collection: COLLECTIONS.wishlistItems,
+  },
 ];
 
 @Module({

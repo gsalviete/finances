@@ -11,14 +11,16 @@ import {
 } from '../components/dashboard/cards';
 import { Stagger } from '../components/motion';
 import { useDashboard } from '../features/queries';
+import { useI18n } from '../lib/i18n';
 
 export default function HomePage() {
   const { data, isLoading, isError, refetch } = useDashboard();
+  const { t } = useI18n();
 
   return (
     <Shell>
       {isLoading && (
-        <div className="grid" role="status" aria-label="Carregando painel">
+        <div className="grid" role="status" aria-label={t('home.loadingAria')}>
           <div className="skeleton" style={{ height: 130 }} />
           <div className="skeleton" style={{ height: 90 }} />
           <div className="skeleton" style={{ height: 200 }} />
@@ -26,9 +28,9 @@ export default function HomePage() {
       )}
       {isError && (
         <div className="empty">
-          Não foi possível carregar o painel.{' '}
+          {t('home.loadError')}{' '}
           <button type="button" className="btn" onClick={() => refetch()}>
-            Tentar de novo
+            {t('common.retry')}
           </button>
         </div>
       )}

@@ -37,6 +37,8 @@
     "@nestjs/throttler": "^6.5.0",
     "argon2": "^0.44.0",
     "helmet": "^8.2.0",
+    "htmlparser2": "^9.1.0",
+    "impit": "^0.14.3",
     "jszip": "^3.10.1",
     "mongoose": "^9.7.4",
     "multer": "^2.2.0",

@@ -30,15 +30,16 @@ body::before {
   background:
     radial-gradient(
       60ch 40ch at 78% -8%,
-      color-mix(in srgb, var(--accent) 10%, transparent),
+      color-mix(in srgb, var(--accent) 9%, transparent),
       transparent 70%
     ),
     radial-gradient(
       50ch 40ch at -6% 6%,
-      color-mix(in srgb, var(--accent-2) 8%, transparent),
+      color-mix(in srgb, var(--accent-2) 7%, transparent),
       transparent 68%
     );
 }
+/* SO pediu redução OU o usuário escolheu motionLevel NONE nos Ajustes */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -46,6 +47,12 @@ body::before {
     animation-duration: 0.001ms !important;
     transition-duration: 0.001ms !important;
   }
+}
+[data-motion='NONE'] *,
+[data-motion='NONE'] *::before,
+[data-motion='NONE'] *::after {
+  animation-duration: 0.001ms !important;
+  transition-duration: 0.001ms !important;
 }
 a {
   color: inherit;
@@ -56,6 +63,37 @@ input,
 select {
   font: inherit;
   color: inherit;
+}
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+/* ---- cabeçalho de página: eyebrow + título display ---- */
+.page-header {
+  margin: 0 0 var(--space-5);
+}
+.eyebrow {
+  display: block;
+  margin: 0 0 2px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.page-title {
+  margin: 0;
+  font-size: 27px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+.page-subtitle {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 14px;
 }
 
 /* ---- primitivas de layout ---- */
@@ -95,14 +133,27 @@ select {
   box-shadow: var(--shadow-lg);
   border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
 }
-/* card de destaque com gradiente de marca */
+/* painel de destaque — papel-razão: grade fina + luz da marca (assinatura) */
 .card-hero {
   background:
-    radial-gradient(120% 140% at 100% 0%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 55%),
+    radial-gradient(
+      120% 150% at 100% 0%,
+      color-mix(in srgb, var(--accent) 13%, transparent),
+      transparent 55%
+    ),
+    var(--ledger-grid),
     var(--surface);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
   overflow: hidden;
+  padding: var(--space-5);
+}
+.card-title {
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 .row {
   display: flex;
@@ -131,18 +182,19 @@ select {
   color: var(--text);
   border-radius: var(--radius-sm);
   padding: var(--space-2) var(--space-3);
+  font-weight: 500;
   cursor: pointer;
   transition:
     background var(--motion),
     border-color var(--motion),
-    transform var(--motion);
+    transform var(--motion-fast);
 }
 .btn:hover {
   background: var(--surface-2);
   border-color: color-mix(in srgb, var(--accent) 30%, var(--border));
 }
 .btn:active {
-  transform: translateY(1px) scale(0.985);
+  transform: translateY(1px) scale(0.98);
 }
 .btn:focus-visible,
 a:focus-visible,
@@ -152,14 +204,29 @@ select:focus-visible {
   outline-offset: 2px;
 }
 .btn-primary {
+  position: relative;
+  overflow: hidden;
   background: var(--brand-gradient);
   border-color: transparent;
-  color: #fff;
-  box-shadow: 0 1px 2px rgb(16 24 40 / 0.2);
+  color: var(--accent-contrast);
+  box-shadow: 0 1px 2px rgb(23 28 25 / 0.2);
+}
+/* brilho que atravessa o botão primário no hover */
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-120%) skewX(-18deg);
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.28), transparent);
+  transition: transform 480ms var(--ease-out);
+  pointer-events: none;
 }
 .btn-primary:hover {
-  filter: brightness(1.06);
   border-color: transparent;
+  filter: brightness(1.05);
+}
+.btn-primary:hover::after {
+  transform: translateX(120%) skewX(-18deg);
 }
 .btn-danger {
   color: var(--danger);
@@ -266,7 +333,7 @@ input[type='checkbox'] {
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: 999px;
-  box-shadow: inset 0 1px 2px rgb(16 24 40 / 0.04);
+  box-shadow: inset 0 1px 2px rgb(23 28 25 / 0.04);
 }
 .segmented-btn {
   position: relative;
@@ -352,6 +419,35 @@ input[type='checkbox'] {
   padding: var(--space-6);
 }
 
+/* ---- anel de progresso do mês (hero) ---- */
+.ring-wrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.ring-track {
+  stroke: color-mix(in srgb, var(--text) 10%, transparent);
+}
+.ring-center {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  line-height: 1.1;
+}
+.ring-value {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 22px;
+  font-weight: 600;
+}
+.ring-caption {
+  font-size: 10.5px;
+  color: var(--text-muted);
+}
+
 /* ---- tabela ---- */
 .table {
   width: 100%;
@@ -359,7 +455,9 @@ input[type='checkbox'] {
 }
 .table th {
   text-align: left;
-  font-size: 12.5px;
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--text-muted);
   font-weight: 600;
   padding: var(--space-2) var(--space-3);
@@ -368,17 +466,24 @@ input[type='checkbox'] {
 .table td {
   padding: var(--space-2) var(--space-3);
   border-bottom: 1px solid var(--border);
+  transition: background var(--motion-fast);
+}
+.table tbody tr:hover td {
+  background: color-mix(in srgb, var(--accent) 4%, transparent);
 }
 
 /* ---- shell ---- */
 .shell {
   display: grid;
-  grid-template-columns: 232px 1fr;
+  grid-template-columns: 236px 1fr;
   min-height: 100dvh;
 }
 .sidebar {
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--accent) 4%, var(--surface)), var(--surface) 40%);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--accent) 5%, var(--surface)),
+    var(--surface) 40%
+  );
   border-right: 1px solid var(--border);
   padding: var(--space-4);
   display: flex;
@@ -397,6 +502,7 @@ input[type='checkbox'] {
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-sm);
   color: var(--text-muted);
+  font-weight: 500;
   transition:
     color var(--motion-fast),
     background var(--motion-fast);
@@ -421,6 +527,7 @@ input[type='checkbox'] {
 }
 /* logo com gradiente de marca */
 .brand-mark {
+  font-family: var(--font-display);
   background: var(--brand-gradient);
   -webkit-background-clip: text;
   background-clip: text;
@@ -473,5 +580,8 @@ input[type='checkbox'] {
   }
   .content {
     padding: var(--space-4);
+  }
+  .page-title {
+    font-size: 23px;
   }
 }

@@ -5,12 +5,15 @@ import { useState } from 'react';
 import { useTheme } from 'next-themes';
 import type { UpdateSettingsInput } from '@finances/shared';
 import { Save } from 'lucide-react';
+import { PageHeader } from '../../components/layout/PageHeader';
 import { Shell } from '../../components/layout/Shell';
 import { MotionCard } from '../../components/motion';
 import { useSettings, useSettingsMutation } from '../../features/queries';
 import { ApiError } from '../../lib/api-client';
+import { useI18n } from '../../lib/i18n';
 
 export default function SettingsPage() {
+  const { t } = useI18n();
   const { data, isLoading } = useSettings();
   const mutation = useSettingsMutation();
   const { setTheme } = useTheme();
@@ -23,7 +26,7 @@ export default function SettingsPage() {
   const save = async () => {
     setFeedback(null);
     if (Object.keys(draft).length === 0) {
-      setFeedback('Nada para salvar.');
+      setFeedback(t('set.nothing'));
       return;
     }
     try {
@@ -33,16 +36,21 @@ export default function SettingsPage() {
         document.cookie = `finances-theme=${saved.theme};path=/;max-age=31536000`;
       }
       setDraft({});
-      setFeedback('Preferências salvas.');
+      setFeedback(t('set.saved'));
     } catch (error) {
-      setFeedback(error instanceof ApiError ? error.message : 'Erro ao salvar');
+      setFeedback(error instanceof ApiError ? error.message : t('set.error'));
     }
   };
 
   return (
     <Shell>
-      <MotionCard interactive={false} aria-label="Preferências">
-        <p style={{ margin: '0 0 12px', fontWeight: 600 }}>Preferências</p>
+      <PageHeader
+        eyebrow={t('set.eyebrow')}
+        title={t('set.pageTitle')}
+        subtitle={t('set.pageSubtitle')}
+      />
+      <MotionCard interactive={false} aria-label={t('set.aria')}>
+        <p className="card-title">{t('set.title')}</p>
         {isLoading || !data ? (
           <div className="skeleton" style={{ height: 140 }} role="status" />
         ) : (
@@ -51,7 +59,7 @@ export default function SettingsPage() {
             style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}
           >
             <div className="field">
-              <label htmlFor="set-theme">Tema</label>
+              <label htmlFor="set-theme">{t('set.theme')}</label>
               <select
                 id="set-theme"
                 value={value('theme')}
@@ -59,13 +67,13 @@ export default function SettingsPage() {
                   setDraft({ ...draft, theme: e.target.value as UpdateSettingsInput['theme'] })
                 }
               >
-                <option value="light">Claro</option>
-                <option value="dark">Escuro</option>
-                <option value="system">Sistema</option>
+                <option value="light">{t('theme.light')}</option>
+                <option value="dark">{t('theme.dark')}</option>
+                <option value="system">{t('theme.system')}</option>
               </select>
             </div>
             <div className="field">
-              <label htmlFor="set-currency">Moeda (ISO 4217)</label>
+              <label htmlFor="set-currency">{t('set.currency')}</label>
               <input
                 id="set-currency"
                 value={value('currency')}
@@ -74,15 +82,18 @@ export default function SettingsPage() {
               />
             </div>
             <div className="field">
-              <label htmlFor="set-language">Idioma</label>
-              <input
+              <label htmlFor="set-language">{t('set.language')}</label>
+              <select
                 id="set-language"
                 value={value('language')}
                 onChange={(e) => setDraft({ ...draft, language: e.target.value })}
-              />
+              >
+                <option value="pt-BR">{t('set.langPt')}</option>
+                <option value="en-US">{t('set.langEn')}</option>
+              </select>
             </div>
             <div className="field">
-              <label htmlFor="set-timezone">Timezone (IANA)</label>
+              <label htmlFor="set-timezone">{t('set.timezone')}</label>
               <input
                 id="set-timezone"
                 value={value('timezone')}
@@ -90,7 +101,7 @@ export default function SettingsPage() {
               />
             </div>
             <div className="field">
-              <label htmlFor="set-backup">Frequência de backup</label>
+              <label htmlFor="set-backup">{t('set.backup')}</label>
               <select
                 id="set-backup"
                 value={value('backupFrequency')}
@@ -101,13 +112,13 @@ export default function SettingsPage() {
                   })
                 }
               >
-                <option value="DAILY">Diário</option>
-                <option value="WEEKLY">Semanal</option>
-                <option value="MONTHLY">Mensal</option>
+                <option value="DAILY">{t('set.daily')}</option>
+                <option value="WEEKLY">{t('set.weekly')}</option>
+                <option value="MONTHLY">{t('set.monthly')}</option>
               </select>
             </div>
             <div className="field">
-              <label htmlFor="set-motion">Animações</label>
+              <label htmlFor="set-motion">{t('set.motion')}</label>
               <select
                 id="set-motion"
                 value={value('motionLevel')}
@@ -118,9 +129,9 @@ export default function SettingsPage() {
                   })
                 }
               >
-                <option value="FULL">Completas</option>
-                <option value="REDUCED">Reduzidas</option>
-                <option value="NONE">Nenhuma</option>
+                <option value="FULL">{t('set.motionFull')}</option>
+                <option value="REDUCED">{t('set.motionReduced')}</option>
+                <option value="NONE">{t('set.motionNone')}</option>
               </select>
             </div>
           </div>
@@ -132,7 +143,7 @@ export default function SettingsPage() {
             onClick={save}
             disabled={mutation.isPending}
           >
-            <Save size={15} aria-hidden /> Salvar
+            <Save size={15} aria-hidden /> {t('set.save')}
           </button>
           {feedback && (
             <span className="muted" role="status" style={{ fontSize: 13 }}>

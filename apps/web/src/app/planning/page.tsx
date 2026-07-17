@@ -4,17 +4,15 @@
 import { useState } from 'react';
 import { monthYearOf, systemClock, type MonthlyPlanItemInput } from '@finances/shared';
 import { Plus, Save, Trash2 } from 'lucide-react';
+import { PageHeader } from '../../components/layout/PageHeader';
 import { Shell } from '../../components/layout/Shell';
 import { MotionCard, Stagger } from '../../components/motion';
 import { useCategories, usePlan, usePlanMutations, useRules } from '../../features/queries';
 import { ApiError } from '../../lib/api-client';
-import { centsToDecimalInput, formatCents, parseDecimalToCents } from '../../lib/format';
+import { centsToDecimalInput, parseDecimalToCents } from '../../lib/format';
+import { useI18n } from '../../lib/i18n';
 
-const KIND_LABEL: Record<string, string> = {
-  INCOME: 'Receita',
-  EXPENSE: 'Despesa',
-  INVESTMENT: 'Investimento',
-};
+const KINDS = ['INCOME', 'EXPENSE', 'INVESTMENT'] as const;
 
 interface EditableItem extends MonthlyPlanItemInput {
   status?: string;
@@ -22,6 +20,7 @@ interface EditableItem extends MonthlyPlanItemInput {
 }
 
 export default function PlanningPage() {
+  const { t, fmtCents, currency } = useI18n();
   const { data: plan, isLoading, isError, refetch } = usePlan();
   const { data: rules } = useRules();
   const { data: categories } = useCategories();
@@ -79,25 +78,33 @@ export default function PlanningPage() {
         })),
       });
       setDraft(null);
-      setFeedback('Plano atualizado — indicadores recalculados na próxima leitura.');
+      setFeedback(t('plan.saved'));
     } catch (error) {
-      setFeedback(error instanceof ApiError ? error.message : 'Valores inválidos (use 12,34)');
+      setFeedback(
+        error instanceof ApiError
+          ? error.message
+          : t('plan.invalid', { example: t('tx.amountPlaceholder') }),
+      );
     }
   };
 
   return (
     <Shell>
+      <PageHeader
+        eyebrow={t('plan.eyebrow')}
+        title={t('plan.pageTitle')}
+        subtitle={t('plan.pageSubtitle')}
+      />
       <Stagger className="grid">
         {isLoading && <div className="skeleton" style={{ height: 160 }} role="status" />}
 
         {isError && (
-          <MotionCard interactive={false} aria-label="Assistente de início de mês">
-            <p style={{ margin: 0, fontWeight: 600 }}>
-              Iniciar {current.month}/{current.year}
+          <MotionCard interactive={false} aria-label={t('plan.assistantAria')}>
+            <p className="card-title" style={{ marginBottom: 0 }}>
+              {t('plan.startTitle', { m: current.month, y: current.year })}
             </p>
             <p className="muted" style={{ fontSize: 13.5 }}>
-              O assistente congela suas recorrências no plano do mês e cria as movimentações
-              esperadas — a Home responde certo desde o dia 1º.
+              {t('plan.startText')}
             </p>
             <div className="grid" style={{ gap: 6, margin: '8px 0' }}>
               {(rules ?? [])
@@ -106,19 +113,15 @@ export default function PlanningPage() {
                   <div key={rule.id} className="row" style={{ justifyContent: 'space-between' }}>
                     <span>
                       <span className="badge badge-neutral">
-                        {rule.investment ? 'Investimento' : KIND_LABEL[rule.type]}
+                        {rule.investment ? t('plan.investment') : t(`kind.${rule.type}`)}
                       </span>{' '}
-                      {rule.description} <span className="muted">(dia {rule.dayOfMonth})</span>
+                      {rule.description}{' '}
+                      <span className="muted">{t('plan.day', { n: rule.dayOfMonth })}</span>
                     </span>
-                    <span className="mono">{formatCents(rule.amountCents)}</span>
+                    <span className="mono">{fmtCents(rule.amountCents)}</span>
                   </div>
                 ))}
-              {(rules ?? []).length === 0 && (
-                <p className="empty">
-                  Nenhuma recorrência cadastrada — o plano nascerá vazio e você adiciona itens
-                  manualmente.
-                </p>
-              )}
+              {(rules ?? []).length === 0 && <p className="empty">{t('plan.emptyRules')}</p>}
             </div>
             <button
               type="button"
@@ -129,21 +132,23 @@ export default function PlanningPage() {
                 await refetch();
               }}
             >
-              Confirmar e iniciar o mês
+              {t('plan.confirmStart')}
             </button>
           </MotionCard>
         )}
 
         {plan && (
-          <MotionCard interactive={false} aria-label="Plano do mês">
+          <MotionCard interactive={false} aria-label={t('plan.planAria')}>
             <div className="row" style={{ justifyContent: 'space-between', marginBottom: 8 }}>
-              <p style={{ margin: 0, fontWeight: 600 }}>
-                Plano de {plan.month}/{plan.year}
-                {plan.archived && <span className="badge badge-neutral"> arquivado</span>}
+              <p className="card-title" style={{ margin: 0 }}>
+                {t('plan.title', { m: plan.month, y: plan.year })}
+                {plan.archived && (
+                  <span className="badge badge-neutral"> {t('plan.archived')}</span>
+                )}
               </p>
               <span className="row">
                 <button type="button" className="btn" onClick={addItem}>
-                  <Plus size={14} aria-hidden /> Item
+                  <Plus size={14} aria-hidden /> {t('plan.addItem')}
                 </button>
                 <button
                   type="button"
@@ -151,23 +156,23 @@ export default function PlanningPage() {
                   onClick={save}
                   disabled={draft === null || update.isPending}
                 >
-                  <Save size={14} aria-hidden /> Salvar
+                  <Save size={14} aria-hidden /> {t('plan.save')}
                 </button>
               </span>
             </div>
 
             {items.length === 0 ? (
-              <p className="empty">Plano sem itens — adicione compromissos previsíveis.</p>
+              <p className="empty">{t('plan.empty')}</p>
             ) : (
               <table className="table">
                 <thead>
                   <tr>
-                    <th>Tipo</th>
-                    <th>Descrição</th>
-                    <th>Categoria</th>
-                    <th>Valor (R$)</th>
-                    <th>Status</th>
-                    <th aria-label="Ações" />
+                    <th>{t('plan.thKind')}</th>
+                    <th>{t('plan.thDescription')}</th>
+                    <th>{t('plan.thCategory')}</th>
+                    <th>{t('plan.thAmount', { currency })}</th>
+                    <th>{t('plan.thStatus')}</th>
+                    <th aria-label={t('plan.actionsAria')} />
                   </tr>
                 </thead>
                 <tbody>
@@ -177,23 +182,23 @@ export default function PlanningPage() {
                       <tr key={item.id ?? `new-${index}`}>
                         <td>
                           <select
-                            aria-label="Tipo do item"
+                            aria-label={t('plan.kindAria')}
                             value={item.kind}
                             disabled={paid}
                             onChange={(e) =>
                               setItem(index, { kind: e.target.value as EditableItem['kind'] })
                             }
                           >
-                            {Object.entries(KIND_LABEL).map(([value, label]) => (
+                            {KINDS.map((value) => (
                               <option key={value} value={value}>
-                                {label}
+                                {t(`kind.${value}`)}
                               </option>
                             ))}
                           </select>
                         </td>
                         <td>
                           <input
-                            aria-label="Descrição do item"
+                            aria-label={t('plan.descAria')}
                             value={item.description}
                             disabled={paid}
                             onChange={(e) => setItem(index, { description: e.target.value })}
@@ -201,7 +206,7 @@ export default function PlanningPage() {
                         </td>
                         <td>
                           <select
-                            aria-label="Categoria do item"
+                            aria-label={t('plan.categoryAria')}
                             value={item.categoryId}
                             disabled={paid}
                             onChange={(e) => setItem(index, { categoryId: e.target.value })}
@@ -215,7 +220,7 @@ export default function PlanningPage() {
                         </td>
                         <td>
                           <input
-                            aria-label="Valor do item"
+                            aria-label={t('plan.amountAria')}
                             className="mono"
                             style={{ width: 110 }}
                             inputMode="decimal"
@@ -226,7 +231,7 @@ export default function PlanningPage() {
                         </td>
                         <td>
                           <span className={`badge ${paid ? 'badge-positive' : 'badge-info'}`}>
-                            {paid ? 'Pago' : 'Pendente'}
+                            {paid ? t('plan.paid') : t('plan.pending')}
                           </span>
                         </td>
                         <td>
@@ -234,7 +239,7 @@ export default function PlanningPage() {
                             <button
                               type="button"
                               className="btn btn-danger"
-                              aria-label="Remover item"
+                              aria-label={t('plan.remove')}
                               onClick={() => removeItem(index)}
                             >
                               <Trash2 size={14} aria-hidden />

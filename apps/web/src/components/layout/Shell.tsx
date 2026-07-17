@@ -1,12 +1,13 @@
 'use client';
 
 /** Shell: sidebar fixa no desktop, drawer no mobile (ARCHITECTURE §6). */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   ArchiveRestore,
+  Heart,
   Home,
   Inbox,
   List,
@@ -18,17 +19,21 @@ import {
   Wallet,
   X,
 } from 'lucide-react';
+import { useSettings } from '../../features/queries';
+import { useI18n, type MessageKey } from '../../lib/i18n';
 import { useRequireSession } from '../../lib/session';
+import { LanguageToggle } from './LanguageToggle';
 import { ThemeToggle } from './ThemeToggle';
 
-const NAV = [
-  { href: '/', label: 'Início', icon: Home },
-  { href: '/transactions', label: 'Transações', icon: List },
-  { href: '/planning', label: 'Planejamento', icon: Target },
-  { href: '/categories', label: 'Categorias', icon: Tags },
-  { href: '/inbox', label: 'Inbox', icon: Inbox },
-  { href: '/backup', label: 'Backup', icon: ArchiveRestore },
-  { href: '/settings', label: 'Ajustes', icon: Settings },
+const NAV: { href: string; labelKey: MessageKey; icon: typeof Home }[] = [
+  { href: '/', labelKey: 'nav.home', icon: Home },
+  { href: '/transactions', labelKey: 'nav.transactions', icon: List },
+  { href: '/planning', labelKey: 'nav.planning', icon: Target },
+  { href: '/categories', labelKey: 'nav.categories', icon: Tags },
+  { href: '/inbox', labelKey: 'nav.inbox', icon: Inbox },
+  { href: '/wishlist', labelKey: 'nav.wishlist', icon: Heart },
+  { href: '/backup', labelKey: 'nav.backup', icon: ArchiveRestore },
+  { href: '/settings', labelKey: 'nav.settings', icon: Settings },
 ];
 
 function NavLinks({
@@ -39,9 +44,10 @@ function NavLinks({
   pillGroup?: string;
 }) {
   const pathname = usePathname();
+  const { t } = useI18n();
   return (
     <>
-      {NAV.map(({ href, label, icon: Icon }) => {
+      {NAV.map(({ href, labelKey, icon: Icon }) => {
         const active = pathname === href;
         return (
           <Link
@@ -59,7 +65,7 @@ function NavLinks({
               />
             )}
             <Icon size={17} aria-hidden />
-            {label}
+            {t(labelKey)}
           </Link>
         );
       })}
@@ -67,14 +73,32 @@ function NavLinks({
   );
 }
 
+/** Preferências persistidas (idioma/moeda/timezone/animações) regem a UI. */
+function useSettingsSync() {
+  const { data } = useSettings();
+  const { syncFromSettings } = useI18n();
+  useEffect(() => {
+    if (data) {
+      syncFromSettings({
+        language: data.language,
+        currency: data.currency,
+        timezone: data.timezone,
+        motionLevel: data.motionLevel,
+      });
+    }
+  }, [data, syncFromSettings]);
+}
+
 export function Shell({ children }: { children: React.ReactNode }) {
   const { user, loading, logout } = useRequireSession();
+  const { t } = useI18n();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const pathname = usePathname();
+  useSettingsSync();
 
   if (loading || user === null) {
     return (
-      <div className="content" role="status" aria-label="Carregando">
+      <div className="content" role="status" aria-label={t('common.loading')}>
         <div className="skeleton" style={{ height: 48, marginBottom: 12 }} />
         <div className="skeleton" style={{ height: 160 }} />
       </div>
@@ -83,7 +107,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="shell">
-      <aside className="sidebar" aria-label="Navegação principal">
+      <aside className="sidebar" aria-label={t('nav.main')}>
         <div className="row" style={{ padding: '4px 12px 18px', fontWeight: 700, fontSize: 17 }}>
           <span
             style={{
@@ -93,7 +117,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
               height: 30,
               borderRadius: 9,
               background: 'var(--brand-gradient)',
-              color: '#fff',
+              color: 'var(--accent-contrast)',
               boxShadow: 'var(--brand-glow)',
             }}
           >
@@ -103,9 +127,10 @@ export function Shell({ children }: { children: React.ReactNode }) {
         </div>
         <NavLinks />
         <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <LanguageToggle />
           <ThemeToggle />
           <button type="button" className="btn" onClick={logout}>
-            <LogOut size={15} aria-hidden /> Sair
+            <LogOut size={15} aria-hidden /> {t('nav.logout')}
           </button>
         </div>
       </aside>
@@ -115,12 +140,12 @@ export function Shell({ children }: { children: React.ReactNode }) {
           <button
             type="button"
             className="btn"
-            aria-label="Abrir menu"
+            aria-label={t('nav.open')}
             onClick={() => setDrawerOpen(true)}
           >
             <Menu size={18} aria-hidden />
           </button>
-          <strong>finances</strong>
+          <strong className="brand-mark">finances</strong>
           <ThemeToggle />
         </header>
 
@@ -139,24 +164,25 @@ export function Shell({ children }: { children: React.ReactNode }) {
                 initial={{ x: -40, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 exit={{ x: -40, opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                aria-label="Navegação principal"
+                transition={{ type: 'spring', stiffness: 380, damping: 36 }}
+                aria-label={t('nav.main')}
                 onClick={(event) => event.stopPropagation()}
               >
                 <div className="row" style={{ justifyContent: 'space-between' }}>
-                  <strong>finances</strong>
+                  <strong className="brand-mark">finances</strong>
                   <button
                     type="button"
                     className="btn"
-                    aria-label="Fechar menu"
+                    aria-label={t('nav.close')}
                     onClick={() => setDrawerOpen(false)}
                   >
                     <X size={16} aria-hidden />
                   </button>
                 </div>
                 <NavLinks onNavigate={() => setDrawerOpen(false)} pillGroup="drawer" />
+                <LanguageToggle />
                 <button type="button" className="btn" onClick={logout}>
-                  <LogOut size={15} aria-hidden /> Sair
+                  <LogOut size={15} aria-hidden /> {t('nav.logout')}
                 </button>
               </motion.nav>
             </motion.div>

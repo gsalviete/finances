@@ -18,6 +18,7 @@ import { PlanningModule } from './modules/planning/planning.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { TransactionsModule } from './modules/transactions/transactions.module';
 import { UsersModule } from './modules/users/users.module';
+import { WishlistModule } from './modules/wishlist/wishlist.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { UsersModule } from './modules/users/users.module';
     SettingsModule,
     BackupModule,
     AutomationModule,
+    WishlistModule,
   ],
   providers: [
     { provide: APP_FILTER, useClass: AllExceptionsFilter },

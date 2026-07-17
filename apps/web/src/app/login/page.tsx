@@ -3,12 +3,15 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Wallet } from 'lucide-react';
+import { LanguageToggle } from '../../components/layout/LanguageToggle';
 import { AnimatePresence, motion } from '../../components/motion';
 import { ApiError } from '../../lib/api-client';
+import { useI18n } from '../../lib/i18n';
 import { useSession } from '../../lib/session';
 
 export default function LoginPage() {
   const { user, login, register } = useSession();
+  const { t } = useI18n();
   const router = useRouter();
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [name, setName] = useState('');
@@ -30,7 +33,7 @@ export default function LoginPage() {
       else await register(name, email, password);
       router.replace('/');
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Erro inesperado');
+      setError(err instanceof ApiError ? err.message : t('login.unexpected'));
     } finally {
       setBusy(false);
     }
@@ -54,7 +57,7 @@ export default function LoginPage() {
               height: 38,
               borderRadius: 11,
               background: 'var(--brand-gradient)',
-              color: '#fff',
+              color: 'var(--accent-contrast)',
               boxShadow: 'var(--brand-glow)',
             }}
           >
@@ -63,7 +66,7 @@ export default function LoginPage() {
           <span className="brand-mark">finances</span>
         </div>
         <p className="muted" style={{ margin: 0 }}>
-          Quanto eu ainda posso gastar até o final deste mês?
+          {t('brand.tagline')}
         </p>
         <form onSubmit={submit} className="grid" style={{ gap: 12 }}>
           <AnimatePresence initial={false}>
@@ -76,13 +79,13 @@ export default function LoginPage() {
                 transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
                 style={{ overflow: 'hidden' }}
               >
-                <label htmlFor="name">Nome</label>
+                <label htmlFor="name">{t('login.name')}</label>
                 <input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
               </motion.div>
             )}
           </AnimatePresence>
           <div className="field">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">{t('login.email')}</label>
             <input
               id="email"
               type="email"
@@ -92,7 +95,7 @@ export default function LoginPage() {
             />
           </div>
           <div className="field">
-            <label htmlFor="password">Senha</label>
+            <label htmlFor="password">{t('login.password')}</label>
             <input
               id="password"
               type="password"
@@ -108,16 +111,19 @@ export default function LoginPage() {
             </p>
           )}
           <button type="submit" className="btn btn-primary" disabled={busy}>
-            {busy ? 'Aguarde…' : mode === 'login' ? 'Entrar' : 'Criar conta'}
+            {busy ? t('login.wait') : mode === 'login' ? t('login.signIn') : t('login.create')}
           </button>
         </form>
-        <button
-          type="button"
-          className="btn"
-          onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
-        >
-          {mode === 'login' ? 'Primeiro acesso? Criar conta' : 'Já tenho conta'}
-        </button>
+        <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            className="btn"
+            onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
+          >
+            {mode === 'login' ? t('login.toRegister') : t('login.toLogin')}
+          </button>
+          <LanguageToggle />
+        </div>
       </motion.div>
     </main>
   );

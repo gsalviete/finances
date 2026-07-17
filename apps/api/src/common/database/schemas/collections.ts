@@ -11,6 +11,7 @@ export const COLLECTIONS = {
   draftTransactions: 'draftTransactions',
   settings: 'settings',
   backups: 'backups',
+  wishlistItems: 'wishlistItems',
 } as const;
 
 export const MODELS = {
@@ -22,4 +23,5 @@ export const MODELS = {
   DraftTransaction: 'DraftTransaction',
   Settings: 'Settings',
   Backup: 'Backup',
+  WishlistItem: 'WishlistItem',
 } as const;
